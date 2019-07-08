@@ -5,7 +5,13 @@
   <link rel="stylesheet" href="assets/css/estilo.css">
   <link rel="stylesheet" href="assets/css/nav.css">
   <link rel="stylesheet" href="assets/css/section.css">
+  <link rel="stylesheet" href="assets/css/about.css">
+
 <!--  <link rel="stylesheet" href="assets/css/variables.css">-->
+
+  <link rel="import" href="sections/about.html">
+  <link rel="import" href="sections/nueva-carrera.html">
+  <link rel="import" href="sections/ver-carreras.html">
 
 </head>
 <body>
@@ -28,17 +34,17 @@
 <div class="contenido">
   <nav class="nav">
     <header class="nav-header">
-      <h1 class="nav-title"><strong>Opciones</strong></h1>
+      <button type="button" id="buttonHome" data-modal="about"  style="position: relative;padding-left: 2rem;"  class="nav-button"><h1><strong>Inicio</strong></h1></em></button>
     </header>
     <div class="nav-item">
       <h5 class="nav-category">
         <svg class="nav-icon"><use xlink:href="assets/img/icons.svg#icon-communication"></use></svg>
         <strong>Carreras</strong>
       </h5>
-      <button type="button" id="buttonca1"  class="nav-button">Nueva carrera</em></button>
-      <button type="button" id="buttonca2"  class="nav-button">Ver carreras</em></button>
+      <button type="button" id="button-windows" data-section="nueva-carrera"  class="nav-button">Nueva carrera</em></button>
+      <button type="button" id="buttonca2" data-section="ver-carreras" class="nav-button">Ver carreras</em></button>
     </div>
-    <div class="nav-item">
+    <!--<div class="nav-item">
       <h5 class="nav-category">
         <svg class="nav-icon"><use xlink:href="assets/img/icons.svg#icon-media"></use></svg>
         <strong>Corredores</strong>
@@ -55,27 +61,15 @@
       <button type="button" id="buttoncon2"  class="nav-button">Corredores</em></button>
       <button type="button" id="buttoncon3"  class="nav-button">Configuraciones</em></button>
     </div>
-
+  -->
 
   </nav>
-  <main class="content">
-    <section id="windows-section" class="section js-section u-category-windows">
-      <header class="section-header">
-        <div class="section-wrapper">
-          <h1>
-            <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-windows"></use></svg>
-            Create and Manage Windows
-          </h1>
-          <h3>The <code>BrowserWindow</code> module in Electron allows you to create a new browser window or manage an existing one.</h3>
-
-          <p>Each browser window is a separate process, known as the renderer process. This process, like the main process that controls the life cycle of the app, has full access to the Node.js APIs.
-        </div>
-      </header>
-    </section>
-  </main>
+  <main class="content js-content"></main>
 
   <script>
+    require('./assets/imports')
     require('./assets/funcion')
+    require('./assets/nav')
   </script>
 </div>
 </body>

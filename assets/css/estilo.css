@@ -30,6 +30,7 @@ body {
 
 .contenido {
     display: flex;
+    height: 100%;
 
 }
 
@@ -83,4 +84,32 @@ body {
 
 a {
     color: #68217A;
+}
+.demo {
+    padding: 2rem 2rem 1rem 2rem;
+}
+.input {
+  background-color: #CCCCCC;
+  border: none;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  text-align: center;
+  float: right;
+  width: 320px;
+}
+.pform {
+  display:flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+.labelform {
+  width: 21px;
+  height: 10px;
+  display: inline-block;
+  border: 1px black solid;
+}
+.spanform {
+width:240px;
 }
