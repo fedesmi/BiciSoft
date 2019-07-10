@@ -9,8 +9,6 @@
   overflow-x: hidden;
   overflow-y: auto;
   color: var(--color-accent);
-
-   Hide
   pointer-events: none;
   visibility: hidden;
   opacity: 0;

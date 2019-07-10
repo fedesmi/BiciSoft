@@ -48,5 +48,5 @@ select {
 }
 /* Transition */
 .select:hover::after {
-  color: #f39c12;
+  color: #2D2D30;
 }

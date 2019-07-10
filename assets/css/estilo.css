@@ -8,86 +8,88 @@
 }
 
 html {
-    margin: 0px;
-    padding: 0px;
-    height: 100%;
-    font-family: 'BlinkMacSystemFont', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    overflow: hidden;
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  font-family: 'BlinkMacSystemFont', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
 }
 
 body {
-    padding: 0px;
-    margin: 0px;
-    background-color: #2D2D30;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
+  padding: 0px;
+  margin: 0px;
+  background-color: #2D2D30;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  border: solid 1spx black;
 }
 
 .contenido {
-    display: flex;
-    height: 100%;
+  display: flex;
+  height: 100%;
 
 }
 
 .title-bar {
-    -webkit-app-region: drag;
-    text-transform: uppercase;
-    font-weight: 300;
-    line-height: 1;
-    margin: 0;
-    height: 32px;
-    padding: 0px;
-    color: #ADADAD;
+  -webkit-app-region: drag;
+  text-transform: uppercase;
+  font-weight: 300;
+  line-height: 1;
+  margin: 0;
+  height: 32px;
+  padding: 0px;
+  color: #ADADAD;
 }
 
 .title {
-    position: fixed;
-    top: 5px;
-    left: 12px;
-    line-height: 32px;
-    font-size: 14px;
+  position: fixed;
+  top: 5px;
+  left: 12px;
+  line-height: 32px;
+  font-size: 14px;
 }
 
 .title-bar-btns {
-    -webkit-app-region: no-drag;
-    position: fixed;
-    top: 1px;
-    right: 0px;
+  -webkit-app-region: no-drag;
+  position: fixed;
+  top: 1px;
+  right: 0px;
 }
 
 .title-bar-btns button {
-    height: 32px;
-    width: 32px;
-    background-color: transparent;
-    border: none;
-    color: #F1F1F1;
-    font-size: 16px;
+  height: 32px;
+  width: 32px;
+  background-color: transparent;
+  border: none;
+  color: #F1F1F1;
+  font-size: 16px;
 }
 
 .title-bar-btns button:hover {
-    background-color: #3F3F41;
+  background-color: #3F3F41;
 }
 
 .content {
-    padding: 12px;
-    color: #CCCCCC;
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    }
+  padding: 12px;
+  color: #CCCCCC;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
 }
 
 a {
-    color: #68217A;
+  color: #68217A;
 }
-.demo {
-    padding: 2rem 2rem 1rem 2rem;
-}
+
+
+
+
 .input {
   background: #2c3e50;
   color: #CCCCCC;
@@ -113,5 +115,24 @@ a {
   border: 1px black solid;
 }
 .spanform {
-width:240px;
+  width:240px;
+}
+
+/**/
+
+
+.boton {
+  border-radius: 6px;
+  width: 80px;
+  height: 33px;
+  margin-left: 10px;
+  color: inherit;
+  background-color: transparent;
+}
+.boton:focus {
+  outline: none;
+  background-color: transparent;
+}
+.boton:active {
+  border-color:  hsl(0,0%,88%);
 }
