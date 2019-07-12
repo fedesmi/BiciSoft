@@ -20,7 +20,7 @@
     <a id="close" href="">Quitar participante</a>
   </div>
 
-  <div id="grid" style="height: 420px; color: black;"></div>
+  <div id="grids" style="height: 420px; color: black;"></div>
 
   </br>
   <div class="" style="margin-top: 10px; margin-bottom: 10px; text-align: right">
@@ -29,10 +29,9 @@
   </div>
 
 
-
   <script>
     $(function () {
-    $('#grid').w2grid({
+    $('#grids').w2grid({
         name: 'grid',
         header: 'Lista de participantes',
       columns: [
@@ -53,8 +52,9 @@
           { recid: 9, numero: '009', nombre: 'JORGE', apellido: 'PEROTTI', categoria: 'ELITE' }
       ]
     });
-});
-</script>
+  });
+  </script>
+
 
 </body>
 </html>
