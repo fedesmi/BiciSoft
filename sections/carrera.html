@@ -1,21 +1,80 @@
 <template class="task-template">
   <section id="carrera-section" class="section js-section u-category-native-ui">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.rc1.min.js"></script>
+
+
+
+
+
     <header class="communication">
       <div class="section-wrapper">
         <h1>
-          <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-native-ui"></use></svg>
+          <img class="section-icon" src="assets/img/crono.png">
           Carrera en curso
         </h1>
-        <h3>Actualmente en curso.</h3>
+
       </div>
     </header>
 
-    <div class="demo">
+    <div class="pform">
+      <span style="width: 60px;">Carrera</span>
+      <div class="select">
+        <select name="slct" id="slct">
+          <option selected disabled>Seleccionar...</option>
+          <option value="1">Ene19 Vuelta Rio Grande</option>
+          <option value="2">Mar19 Postas</option>
+        </select>
+      </div>
+      <button class="boton" id="bot1">Empezar</button>
+      <button class="boton" id="bot2">Terminar</button>
+  </div>
 
-    <div id="grid2" style="height: 420px; color: black;"></div>
-    </div>
-    
+
+    <p class="pform"><span class="spanform" style="width: 60px;">Marcar #</span>
+      <input type="text" class="input" style="width: 130px; float: left; margin-left: 10px;" name="sidebar-color" placeholder="enter para marcar" >
+
+    </p>
+
+    <div id="myGrid3" style="height: 350px;width:600px;" class="ag-theme-balham"></div>
+
+  <script type="text/javascript" charset="utf-8">
+    // specify the columns
+    var columnDefs = [
+      {headerName: "posición ", field: "posicion", sortable: true},
+      {headerName: "nombre", field: "nombre"},
+      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
+      {headerName: "tiempo", field: "tiempo", sortable: true},
+      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+    ];
+
+    // specify the data
+    var rowData = [
+      {posicion: "1", nombre: "JUAN", apellido: "SORIN", tiempo: "00:30:33", categoria: "JUNIOR"},
+      {posicion: "2", nombre: "ROBERTO", apellido: "PEREZ", tiempo: "00:33:23", categoria: "JUNIOR"},
+      {posicion: "3", nombre: "PEDRO", apellido: "GIMENEZ", tiempo: "00:33:44", categoria: "JUNIOR"},
+      {posicion: "4", nombre: "MARTIN", apellido: "FERNANDEZ", tiempo: "00:35:58", categoria: "MAYOR"},
+      {posicion: "5", nombre: "GERARDO", apellido: "DOMINGUEZ", tiempo: "00:38:13", categoria: "MAYOR"}
+    ];
+
+    // let the grid know which columns and what data to use
+    var gridOptions = {
+            defaultColDef: {
+            width: 110,
+            resizable: true
+        },
+      columnDefs: columnDefs,
+      rowData: rowData
+
+    };
+
+  // lookup the container we want the Grid to use
+  var eGridDiv = document.querySelector('#myGrid3');
+
+  // create the grid passing in the div to use together with the columns & data we want to use
+  new agGrid.Grid(eGridDiv, gridOptions);
+
+
+
+  </script>
+
 </section>
 </template>

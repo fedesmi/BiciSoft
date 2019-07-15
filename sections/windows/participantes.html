@@ -3,14 +3,11 @@
 <head>
 
   <link rel="stylesheet" href="../../assets/css/windows.css" />
-  <link rel="stylesheet" href="../../assets/css/w2ui.css" />
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.rc1.min.js"></script>
-  <!--
-  ver de agregar los jscript
-  <script  src="jquery-3.4.1.min.js"></script>
-  <script type="text/javascript" src="w2ui.js"></script>-->
+
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
 
 
 </head>
@@ -20,7 +17,7 @@
     <a id="close" href="">Quitar participante</a>
   </div>
 
-  <div id="grids" style="height: 420px; color: black;"></div>
+    <div id="myGrid2" style="height: 300px;width:300px;" class="ag-theme-balham"></div>
 
   </br>
   <div class="" style="margin-top: 10px; margin-bottom: 10px; text-align: right">
@@ -29,31 +26,37 @@
   </div>
 
 
-  <script>
-    $(function () {
-    $('#grids').w2grid({
-        name: 'grid',
-        header: 'Lista de participantes',
-      columns: [
-          { field: 'numero', caption: 'NUM', size: '10%' },
-          { field: 'nombre', caption: 'NOMBRE', size: '30%' },
-          { field: 'apellido', caption: 'APELLIDO', size: '30%' },
-          { field: 'categoria', caption: 'CATEGORIA', size: '130px' },
-      ],
-      records: [
-          { recid: 1, numero: '001', nombre: 'JUAN', apellido: 'RODRIGUEZ', categoria: 'JUVENILES' },
-          { recid: 2, numero: '002', nombre: 'RODRIGO', apellido: 'PEREZ', categoria: 'JUVENILES' },
-          { recid: 3, numero: '003', nombre: 'MAURICIO', apellido: 'SOTO', categoria: 'CADETES' },
-          { recid: 4, numero: '004', nombre: 'SEBASTIAN', apellido: 'GONZALEZ', categoria: 'MASTER A1' },
-          { recid: 5, numero: '005', nombre: 'CARLOS', apellido: 'MARTINEZ', categoria: 'SUB23' },
-          { recid: 6, numero: '006', nombre: 'ERIC', apellido: 'PAEZ', categoria: 'SUB23' },
-          { recid: 7, numero: '007', nombre: 'MARTIN', apellido: 'SANCHEZ', categoria: 'MASTER D' },
-          { recid: 8, numero: '008', nombre: 'GUSTAVO', apellido: 'DOMINGUEZ', categoria: 'ELITE' },
-          { recid: 9, numero: '009', nombre: 'JORGE', apellido: 'PEROTTI', categoria: 'ELITE' }
-      ]
-    });
-  });
-  </script>
+
+
+<script type="text/javascript" charset="utf-8">
+  // specify the columns
+  var columnDefs = [
+    {headerName: "Make", field: "make"},
+    {headerName: "Model", field: "model"},
+    {headerName: "Price", field: "price"}
+  ];
+
+  // specify the data
+  var rowData = [
+    {make: "Toyota", model: "Celica", price: 35000},
+    {make: "Ford", model: "Mondeo", price: 32000},
+    {make: "Porsche", model: "Boxter", price: 72000}
+  ];
+
+  // let the grid know which columns and what data to use
+  var gridOptions = {
+    columnDefs: columnDefs,
+    rowData: rowData
+  };
+
+// lookup the container we want the Grid to use
+var eGridDiv = document.querySelector('#myGrid2');
+
+// create the grid passing in the div to use together with the columns & data we want to use
+new agGrid.Grid(eGridDiv, gridOptions);
+
+</script>
+
 
 
 </body>

@@ -6,16 +6,18 @@
   <link rel="stylesheet" href="assets/css/nav.css">
   <link rel="stylesheet" href="assets/css/section.css">
   <link rel="stylesheet" href="assets/css/select-box.css">
-  <link rel="stylesheet" href="assets/css/w2ui.css" />
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.rc1.min.js"></script>
 
 
   <link rel="import" href="sections/nueva-carrera.html">
   <link rel="import" href="sections/ver-carreras.html">
   <link rel="import" href="sections/carrera.html">
 
+
+  <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>-->
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
 
 </head>
 <body>
@@ -38,43 +40,28 @@
 <div class="contenido">
   <nav class="nav">
     <header class="nav-header">
-      <button type="button" id="buttonHome" data-section="carrera" class="nav-button">Inicio</em></button>
-      <script>
-        $(function () {
-        $('#grid2').w2grid({
-            name: 'grid',
-            header: 'Lista de participantes',
-          columns: [
-              { field: 'numero', caption: 'NUM', size: '10%' },
-              { field: 'nombre', caption: 'NOMBRE', size: '30%' },
-              { field: 'apellido', caption: 'APELLIDO', size: '30%' },
-              { field: 'categoria', caption: 'CATEGORIA', size: '130px' },
-          ],
-          records: [
-              { recid: 1, numero: '001', nombre: 'JUAN', apellido: 'RODRIGUEZ', categoria: 'JUVENILES' },
-              { recid: 2, numero: '002', nombre: 'RODRIGO', apellido: 'PEREZ', categoria: 'JUVENILES' },
-              { recid: 3, numero: '003', nombre: 'MAURICIO', apellido: 'SOTO', categoria: 'CADETES' },
-              { recid: 4, numero: '004', nombre: 'SEBASTIAN', apellido: 'GONZALEZ', categoria: 'MASTER A1' },
-              { recid: 5, numero: '005', nombre: 'CARLOS', apellido: 'MARTINEZ', categoria: 'SUB23' },
-              { recid: 6, numero: '006', nombre: 'ERIC', apellido: 'PAEZ', categoria: 'SUB23' },
-              { recid: 7, numero: '007', nombre: 'MARTIN', apellido: 'SANCHEZ', categoria: 'MASTER D' },
-              { recid: 8, numero: '008', nombre: 'GUSTAVO', apellido: 'DOMINGUEZ', categoria: 'ELITE' },
-              { recid: 9, numero: '009', nombre: 'JORGE', apellido: 'PEROTTI', categoria: 'ELITE' }
-          ]
-        });
-      });
-      </script>
+
     </header>
     <div class="nav-item">
-
       <h5 class="nav-category">
-        <svg class="nav-icon"><use xlink:href="assets/img/icons.svg#icon-communication"></use></svg>
+        <!--<svg class="nav-icon"><use xlink:href="assets/img/crono.svg#Layer_1"></use></svg>-->
+        <img class="nav-icon" src="assets/img/stopwatch.png">
+        <strong>Inicio</strong>
+      </h5>
+      <button type="button" id="button-windows" data-section="carrera"  class="nav-button">Carrera</em></button>
+    </div>
+    <div class="nav-item">
+      <h5 class="nav-category">
+
+        <img class="nav-icon" src="assets/img/route.png">
         <strong>Carreras</strong>
       </h5>
       <button type="button" id="button-windows" data-section="nueva-carrera"  class="nav-button">Nueva carrera</em></button>
       <button type="button" id="buttonca2" data-section="ver-carreras" class="nav-button">Ver carreras</em></button>
     </div>
+
     </nav>
+
   <main class="content js-content"></main>
 
   <script>
