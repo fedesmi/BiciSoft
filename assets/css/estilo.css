@@ -121,9 +121,10 @@ a {
 /**/
 
 
+
 .boton {
   border-radius: 6px;
-  width: 80px;
+  width: 100px;
   height: 33px;
   margin-left: 10px;
   color: inherit;

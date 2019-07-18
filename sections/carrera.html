@@ -18,28 +18,45 @@
     <div class="pform">
       <span style="width: 60px;">Carrera</span>
       <div class="select">
-        <select name="slct" id="slct">
+        <select name="slct" id="selectBox">
           <option selected disabled>Seleccionar...</option>
           <option value="1">Ene19 Vuelta Rio Grande</option>
           <option value="2">Mar19 Postas</option>
         </select>
       </div>
-      <button class="boton" id="bot1">Empezar</button>
-      <button class="boton" id="bot2">Terminar</button>
+      <button class="boton" onclick="myFunction()"  id="botonEmpezar"  >Empezar</button>
   </div>
-
+  <script>
+    function myFunction()
+    {
+      if (document.getElementById("botonEmpezar").innerHTML === "Terminar")
+      {
+        document.getElementById("botonEmpezar").innerHTML ="Empezar";
+        document.getElementById("selectBox").disabled = false;
+      }
+      else {
+        document.getElementById("botonEmpezar").innerHTML = "Terminar";
+        document.getElementById("selectBox").disabled = true;
+      }
+    }
+  </script>
 
     <p class="pform"><span class="spanform" style="width: 60px;">Marcar #</span>
       <input type="text" class="input" style="width: 130px; float: left; margin-left: 10px;" name="sidebar-color" placeholder="enter para marcar" >
 
     </p>
 
-    <div id="myGrid3" style="height: 350px;width:600px;" class="ag-theme-balham"></div>
+    <div id="myGrid3" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+
+
+
 
   <script type="text/javascript" charset="utf-8">
+
     // specify the columns
     var columnDefs = [
-      {headerName: "posición ", field: "posicion", sortable: true},
+      {headerName: "general", field: "general", sortable: true},
+      {headerName: "posición", field: "posicion", sortable: true},
       {headerName: "nombre", field: "nombre"},
       {headerName: "apellido", field: "apellido", sortable: true, filter: true},
       {headerName: "tiempo", field: "tiempo", sortable: true},
@@ -48,11 +65,11 @@
 
     // specify the data
     var rowData = [
-      {posicion: "1", nombre: "JUAN", apellido: "SORIN", tiempo: "00:30:33", categoria: "JUNIOR"},
-      {posicion: "2", nombre: "ROBERTO", apellido: "PEREZ", tiempo: "00:33:23", categoria: "JUNIOR"},
-      {posicion: "3", nombre: "PEDRO", apellido: "GIMENEZ", tiempo: "00:33:44", categoria: "JUNIOR"},
-      {posicion: "4", nombre: "MARTIN", apellido: "FERNANDEZ", tiempo: "00:35:58", categoria: "MAYOR"},
-      {posicion: "5", nombre: "GERARDO", apellido: "DOMINGUEZ", tiempo: "00:38:13", categoria: "MAYOR"}
+      {general: "1", posicion: "1", nombre: "JUAN", apellido: "SORIN", tiempo: "00:30:33", categoria: "MAYOR"},
+      {general: "2", posicion: "2", nombre: "ROBERTO", apellido: "PEREZ", tiempo: "00:33:23", categoria: "MAYOR"},
+      {general: "3", posicion: "1", nombre: "PEDRO", apellido: "GIMENEZ", tiempo: "00:33:44", categoria: "JUNIOR"},
+      {general: "4", posicion: "3", nombre: "MARTIN", apellido: "FERNANDEZ", tiempo: "00:35:58", categoria: "MAYOR"},
+      {general: "5", posicion: "2", nombre: "GERARDO", apellido: "DOMINGUEZ", tiempo: "00:38:13", categoria: "JUNIOR"}
     ];
 
     // let the grid know which columns and what data to use

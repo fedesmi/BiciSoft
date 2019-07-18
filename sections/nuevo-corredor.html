@@ -1,0 +1,51 @@
+<template class="task-template">
+  <section id="nuevo-corredor-section" class="section js-section u-category-native-ui">
+    <header class="communication">
+      <div class="section-wrapper">
+        <h1>
+          <img class="section-icon" src="assets/img/programming.png">
+          Nuevo Corredor
+        </h1>
+        <h3>Asegurese que todos los datos son correctos antes de guardar.</h3>
+      </div>
+    </header>
+
+    <div class="demo">
+
+
+      <p class="pform"><span class="spanform">Nombre</span> <span class="spanform">
+        <input type="text" class="input" name="background" value="Juan"></span>
+      </p>
+      <p class="pform"><span class="spanform">Apellido</span> <span class="spanform">
+        <input type="text" class="input" name="border-color" value="Pereyra"></span>
+      </p>
+      <p class="pform"><span class="spanform">DNI</span> <span class="spanform">
+        <input type="text" class="input" name="border-color" value="26548752"></span>
+      </p>
+      <div class="pform"><span class="spanform">Categoría</span>  <span class="spanform">
+        <div class="select">
+          <select name="slct" id="slct">
+            <option selected disabled>Seleccionar...</option>
+            <option value="1">Cadete</option>
+            <option value="2">Junior</option>
+            <option value="3">Elite</option>
+            <option value="4">Veterano</option>
+          </select>
+        </div>
+      </span>
+    </div>
+
+
+
+    <div style="text-align: center; margin-top:30px;">
+    <button class="boton" id="limpiarBtn">Limpiar</button>
+    <button class="boton" id="guardarbtn">Guardar</button>
+    </div>
+
+  </div>
+
+  <script type="text/javascript">
+    require('./js/frameless-window')
+  </script>
+</section>
+</template>
