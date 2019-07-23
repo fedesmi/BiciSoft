@@ -1,0 +1,53 @@
+<template class="task-template">
+  <section id="ver-corredores-section" class="section js-section u-category-native-ui">
+    <header class="communication">
+      <div class="section-wrapper">
+        <h1>
+          <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-native-ui"></use></svg>
+          Ver Corredores
+        </h1>
+        <h3>Corredores</h3>
+      </div>
+    </header>
+
+    <div id="verCorredoresGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+
+
+    <script type="text/javascript" charset="utf-8">
+
+      // specify the columns
+      var columnDefs = [
+        {headerName: "nombre", field: "nombre"},
+        {headerName: "apellido", field: "apellido", sortable: true, filter: true},
+        {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+      ];
+
+      // specify the data
+      var rowData = [
+        {nombre: "JUAN", apellido: "SORIN", categoria: "MAYOR"},
+        {nombre: "ROBERTO", apellido: "PEREZ", categoria: "MAYOR"},
+        {nombre: "PEDRO", apellido: "GIMENEZ", categoria: "JUNIOR"},
+        {nombre: "MARTIN", apellido: "FERNANDEZ", categoria: "MAYOR"},
+        {nombre: "GERARDO", apellido: "DOMINGUEZ", categoria: "JUNIOR"}
+      ];
+
+      // let the grid know which columns and what data to use
+      var gridOptions = {
+              defaultColDef: {
+              width: 110,
+              resizable: true
+          },
+        columnDefs: columnDefs,
+        rowData: rowData
+
+      };
+
+    // lookup the container we want the Grid to use
+    var eGridDiv = document.querySelector('#verCorredoresGrid');
+
+    // create the grid passing in the div to use together with the columns & data we want to use
+    new agGrid.Grid(eGridDiv, gridOptions);
+
+    </script>
+  </section>
+</template>

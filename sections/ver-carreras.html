@@ -6,15 +6,66 @@
           <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-native-ui"></use></svg>
           Ver Carreras
         </h1>
-        <h3>Historial de Carreras.</h3>
+        <h3>Carreras</h3>
       </div>
     </header>
 
     <div class="demo">
-      
-    </div>
-    <script type="text/javascript">
-    </script>
 
+      <div class="pform">
+      <span style="width: 60px;">Carrera</span>
+      <div class="select">
+        <select name="slct" id="selectBox">
+          <option selected disabled>Seleccionar...</option>
+          <option value="1">Ene19 Vuelta Rio Grande</option>
+          <option value="2">Mar19 Postas</option>
+        </select>
+      </div>
+      </div>
+
+
+
+
+  <button class="boton" id="frameless-window">Agregar</button>
+  <button class="boton" id="frameless-window2">Quitar</button>
+    <div id="verCarrerasGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+
+    <script type="text/javascript" charset="utf-8">
+
+      // specify the columns
+      var columnDefs = [
+        {headerName: "numero", field: "numero", sortable: true},
+        {headerName: "nombre", field: "nombre"},
+        {headerName: "apellido", field: "apellido", sortable: true, filter: true},
+        {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+      ];
+
+      // specify the data
+      var rowData = [
+        {numero: "231", nombre: "JUAN", apellido: "SORIN", categoria: "MAYOR"},
+        {numero: "432", nombre: "ROBERTO", apellido: "PEREZ", categoria: "MAYOR"},
+        {numero: "123", nombre: "PEDRO", apellido: "GIMENEZ", categoria: "JUNIOR"},
+        {numero: "244", nombre: "MARTIN", apellido: "FERNANDEZ", categoria: "MAYOR"},
+        {numero: "342", nombre: "GERARDO", apellido: "DOMINGUEZ", categoria: "JUNIOR"}
+      ];
+
+      // let the grid know which columns and what data to use
+      var gridOptions = {
+              defaultColDef: {
+              width: 110,
+              resizable: true
+          },
+        columnDefs: columnDefs,
+        rowData: rowData
+
+      };
+
+    // lookup the container we want the Grid to use
+    var eGridDiv = document.querySelector('#verCarrerasGrid');
+
+    // create the grid passing in the div to use together with the columns & data we want to use
+    new agGrid.Grid(eGridDiv, gridOptions);
+
+    </script>
   </section>
 </template>

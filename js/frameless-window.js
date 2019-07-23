@@ -6,11 +6,11 @@ const path = require('path')
 newWindowBtn.addEventListener('click', (event) => {
   const modalPath = path.join('file://', __dirname, '../sections/windows/participantes.html')
   let win = new BrowserWindow({
-                frame: false, 
-                parent: remote.getCurrentWindow(), 
+                frame: false,
+                parent: remote.getCurrentWindow(),
                 modal: true,
                 width: 500,
-                height: 550
+                height: 400
                 })
 
   win.on('close', () => { win = null })

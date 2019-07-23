@@ -57,6 +57,7 @@
     var columnDefs = [
       {headerName: "general", field: "general", sortable: true},
       {headerName: "posición", field: "posicion", sortable: true},
+      {headerName: "numero", field: "numero", sortable: true},
       {headerName: "nombre", field: "nombre"},
       {headerName: "apellido", field: "apellido", sortable: true, filter: true},
       {headerName: "tiempo", field: "tiempo", sortable: true},
@@ -65,31 +66,48 @@
 
     // specify the data
     var rowData = [
-      {general: "1", posicion: "1", nombre: "JUAN", apellido: "SORIN", tiempo: "00:30:33", categoria: "MAYOR"},
-      {general: "2", posicion: "2", nombre: "ROBERTO", apellido: "PEREZ", tiempo: "00:33:23", categoria: "MAYOR"},
-      {general: "3", posicion: "1", nombre: "PEDRO", apellido: "GIMENEZ", tiempo: "00:33:44", categoria: "JUNIOR"},
-      {general: "4", posicion: "3", nombre: "MARTIN", apellido: "FERNANDEZ", tiempo: "00:35:58", categoria: "MAYOR"},
-      {general: "5", posicion: "2", nombre: "GERARDO", apellido: "DOMINGUEZ", tiempo: "00:38:13", categoria: "JUNIOR"}
+      {general: "1", posicion: "1", numero: "231", nombre: "JUAN", apellido: "SORIN", tiempo: "00:30:33", categoria: "MAYOR"},
+      {general: "2", posicion: "2", numero: "432", nombre: "ROBERTO", apellido: "PEREZ", tiempo: "00:33:23", categoria: "MAYOR"},
+      {general: "3", posicion: "1", numero: "123", nombre: "PEDRO", apellido: "GIMENEZ", tiempo: "00:33:44", categoria: "JUNIOR"},
+      {general: "4", posicion: "3", numero: "244", nombre: "MARTIN", apellido: "FERNANDEZ", tiempo: "00:35:58", categoria: "MAYOR"},
+      {general: "5", posicion: "2", numero: "342", nombre: "GERARDO", apellido: "DOMINGUEZ", tiempo: "00:38:13", categoria: "JUNIOR"}
     ];
 
     // let the grid know which columns and what data to use
-    var gridOptions = {
+  /*var gridOptions = {
             defaultColDef: {
             width: 110,
-            resizable: true
+            resizable: true,
+
         },
       columnDefs: columnDefs,
       rowData: rowData
 
-    };
+    };*/
+    var gridOptions = {
+    columnDefs: columnDefs,
+    rowData: rowData,
+    onGridReady: function (params) {
+        params.api.sizeColumnsToFit();
 
-  // lookup the container we want the Grid to use
+        window.addEventListener('resize', function() {
+          setTimeout(function() {
+            params.api.sizeColumnsToFit();
+          })
+        })
+    }
+};
+document.addEventListener("DOMContentLoaded", function() {
+    var eGridDiv = document.querySelector('#myGrid3');
+    new agGrid.Grid(eGridDiv, gridOptions);
+    gridOptions.api.sizeColumnsToFit();
+});
+
+/*  // lookup the container we want the Grid to use
   var eGridDiv = document.querySelector('#myGrid3');
 
   // create the grid passing in the div to use together with the columns & data we want to use
-  new agGrid.Grid(eGridDiv, gridOptions);
-
-
+  new agGrid.Grid(eGridDiv, gridOptions);*/
 
   </script>
 
