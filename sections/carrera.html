@@ -46,7 +46,7 @@
 
     </p>
 
-    <div id="myGrid3" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+    <div id="gridCorredoresCarrera" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
 
 
 
@@ -54,7 +54,7 @@
   <script type="text/javascript" charset="utf-8">
 
     // specify the columns
-    var columnDefs = [
+    var columnDefsC = [
       {headerName: "general", field: "general", sortable: true},
       {headerName: "posición", field: "posicion", sortable: true},
       {headerName: "numero", field: "numero", sortable: true},
@@ -65,7 +65,7 @@
     ];
 
     // specify the data
-    var rowData = [
+    var rowDataC = [
       {general: "1", posicion: "1", numero: "231", nombre: "JUAN", apellido: "SORIN", tiempo: "00:30:33", categoria: "MAYOR"},
       {general: "2", posicion: "2", numero: "432", nombre: "ROBERTO", apellido: "PEREZ", tiempo: "00:33:23", categoria: "MAYOR"},
       {general: "3", posicion: "1", numero: "123", nombre: "PEDRO", apellido: "GIMENEZ", tiempo: "00:33:44", categoria: "JUNIOR"},
@@ -84,9 +84,9 @@
       rowData: rowData
 
     };*/
-    var gridOptions = {
-    columnDefs: columnDefs,
-    rowData: rowData,
+    var gridOptions1 = {
+    columnDefs: columnDefsC,
+    rowData: rowDataC,
     onGridReady: function (params) {
         params.api.sizeColumnsToFit();
 
@@ -98,8 +98,8 @@
     }
 };
 document.addEventListener("DOMContentLoaded", function() {
-    var eGridDiv = document.querySelector('#myGrid3');
-    new agGrid.Grid(eGridDiv, gridOptions);
+    var eGridDiv = document.querySelector('#gridCorredoresCarrera');
+    new agGrid.Grid(eGridDiv, gridOptions1);
     gridOptions.api.sizeColumnsToFit();
 });
 

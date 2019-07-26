@@ -10,7 +10,7 @@ newWindowBtn.addEventListener('click', (event) => {
                 parent: remote.getCurrentWindow(),
                 modal: true,
                 width: 500,
-                height: 400
+                height: 500
                 })
 
   win.on('close', () => { win = null })

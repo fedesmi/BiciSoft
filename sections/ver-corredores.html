@@ -17,6 +17,7 @@
 
       // specify the columns
       var columnDefs = [
+        {headerName: "documento", field: "documento"},
         {headerName: "nombre", field: "nombre"},
         {headerName: "apellido", field: "apellido", sortable: true, filter: true},
         {headerName: "categoria", field: "categoria", sortable: true, filter: true}
@@ -24,11 +25,11 @@
 
       // specify the data
       var rowData = [
-        {nombre: "JUAN", apellido: "SORIN", categoria: "MAYOR"},
-        {nombre: "ROBERTO", apellido: "PEREZ", categoria: "MAYOR"},
-        {nombre: "PEDRO", apellido: "GIMENEZ", categoria: "JUNIOR"},
-        {nombre: "MARTIN", apellido: "FERNANDEZ", categoria: "MAYOR"},
-        {nombre: "GERARDO", apellido: "DOMINGUEZ", categoria: "JUNIOR"}
+        {documento: "22554985", nombre: "JUAN", apellido: "SORIN", categoria: "MAYOR"},
+        {documento: "25451326", nombre: "ROBERTO", apellido: "PEREZ", categoria: "MAYOR"},
+        {documento: "51246351", nombre: "PEDRO", apellido: "GIMENEZ", categoria: "JUNIOR"},
+        {documento: "33254445", nombre: "MARTIN", apellido: "FERNANDEZ", categoria: "MAYOR"},
+        {documento: "41025001", nombre: "GERARDO", apellido: "DOMINGUEZ", categoria: "JUNIOR"}
       ];
 
       // let the grid know which columns and what data to use
