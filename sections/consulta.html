@@ -68,6 +68,7 @@
             });
 
             // Perform a query
+            //$query = 'SELECT JSON_OBJECT('athlete', athlete, 'age', age)  FROM olympic_winners limit 10';
             $query = 'SELECT athlete, age FROM `olympic_winners` limit 10';
 
             connection.query($query, function(err, rows, fields) {
