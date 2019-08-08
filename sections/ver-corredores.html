@@ -17,22 +17,22 @@
 
       // specify the columns
       var columnDefs = [
-      {headerName: "athlete", field: "athlete"},
-      {headerName: "age", field: "age"}
-      /*  {headerName: "documento", field: "documento"},
+      /*{headerName: "athlete", field: "athlete"},
+      {headerName: "age", field: "age"}  ];*/
+      {headerName: "documento", field: "documento"},
       {headerName: "nombre", field: "nombre"},
       {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "categoria", field: "categoria", sortable: true, filter: true}*/
+      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
       ];
-      var rowData = getFirstTenRows(rowData);
+
       // specify the data
-      /*  var rowData = [
+        var rowData = [
       {documento: "22554985", nombre: "JUAN", apellido: "SORIN", categoria: "MAYOR"},
       {documento: "25451326", nombre: "ROBERTO", apellido: "PEREZ", categoria: "MAYOR"},
       {documento: "51246351", nombre: "PEDRO", apellido: "GIMENEZ", categoria: "JUNIOR"},
       {documento: "33254445", nombre: "MARTIN", apellido: "FERNANDEZ", categoria: "MAYOR"},
       {documento: "41025001", nombre: "GERARDO", apellido: "DOMINGUEZ", categoria: "JUNIOR"}
-      ];*/
+      ];
 
       // let the grid know which columns and what data to use
       var gridOptions = {
@@ -51,7 +51,7 @@
       // create the grid passing in the div to use together with the columns & data we want to use
       new agGrid.Grid(eGridDiv, gridOptions);
 
-      /**/
+      /*
       function getFirstTenRows(callback){
         var mysql = require('mysql');
         // Add the credentials to access your database
@@ -91,7 +91,7 @@
         connection.end(function(){
           // The connection has been closed
         });
-      }
+      }*/
 
     </script>
   </section>
