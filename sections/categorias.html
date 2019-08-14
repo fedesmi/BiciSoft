@@ -1,5 +1,5 @@
 <template class="task-template">
-  <section id="ver-corredores-section" class="section js-section u-category-native-ui">
+  <section id="categorias-section" class="section js-section u-category-native-ui">
     <header class="communication">
       <div class="section-wrapper">
         <h1>
@@ -12,7 +12,7 @@
 
     </header>
 
-    <div id="verCorredoresGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+    <div id="categoriasGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
 
 
     <script type="text/javascript" charset="utf-8">
@@ -20,16 +20,14 @@
       // specify the columns
       var columnDefs = [
 
-      {headerName: "documento", field: "documento"},
-      {headerName: "nombre", field: "nombre"},
-      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+      {headerName: "descripcion", field: "descripcion"},
+      {headerName: "observacion", field: "observacion", sortable: true, filter: true}
       ];
 
 
 
       // let the grid know which columns and what data to use
-      var gridOptions = {
+      var gridOptionsCorredores = {
         defaultColDef: {
           width: 110,
           resizable: true
@@ -40,7 +38,7 @@
       };
 
       // lookup the container we want the Grid to use
-      var eGridDiv = document.querySelector('#verCorredoresGrid');
+      var eGridDiv = document.querySelector('#categoriasGrid');
 
       //para hacerlo con un php y cubrir la clave de bd
         /*fetch('http://localhost/xml-php/MYSQL.php').then(function(response) {
@@ -54,10 +52,10 @@
 
 
       getRows(function (err, result){
-        gridOptions.api.setRowData(result);
+        gridOptionsCorredores.api.setRowData(result);
       });
 
-      new agGrid.Grid(eGridDiv, gridOptions);
+      new agGrid.Grid(eGridDiv, gridOptionsCorredores);
 
 
       //nuevo
@@ -78,7 +76,7 @@
         });
         console.log("performing query");
         // Perform a query
-        $query = 'SELECT * FROM corredores_view';
+        $query = 'SELECT * FROM `categorias`';
         connection.query($query, function(err, rows, fields) {
           if(err){
             console.log("An error ocurred performing the query.");
