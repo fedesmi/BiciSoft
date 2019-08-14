@@ -14,15 +14,21 @@
   <link rel="import" href="sections/carrera.html">
   <link rel="import" href="sections/nuevo-corredor.html">
   <link rel="import" href="sections/ver-corredores.html">
-    <link rel="import" href="sections/consulta.html">
+  <link rel="import" href="sections/consulta.html">
 
 
-
-<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+  <!--<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+-->
+  <script>window.$ = window.jQuery = require('jquery');</script>
+    <script>window.$ = window.jQuery = require('dataTables');</script>
 
   <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+
   <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
   <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
 
@@ -35,8 +41,8 @@
       <img class="nav-header-icon" src="assets/img/logo.png">
     </div>
     <div class="nav-header-title">
-    <strong>BiciSoft</strong>
-  </div>
+      <strong>BiciSoft</strong>
+    </div>
     <div class="title-bar-btns">
       <button id="min-btn" class="min-btn">-</button>
       <button id="max-btn" class="max-btn">+</button>
@@ -44,52 +50,52 @@
     </div>
   </div>
 
-<div class="contenido">
-  <nav class="nav">
-    <header class="nav-header">
+  <div class="contenido">
+    <nav class="nav">
+      <header class="nav-header">
 
-    </header>
-    <div class="nav-item">
-      <h5 class="nav-category">
-        <!--<svg class="nav-icon"><use xlink:href="assets/img/crono.svg#Layer_1"></use></svg>-->
-        <img class="nav-icon" src="assets/img/stopwatch.png">
-        <strong>Inicio</strong>
-      </h5>
-      <button type="button" id="button-windows" data-section="carrera"  class="nav-button">Carrera</em></button>
-    </div>
+      </header>
+      <div class="nav-item">
+        <h5 class="nav-category">
+          <!--<svg class="nav-icon"><use xlink:href="assets/img/crono.svg#Layer_1"></use></svg>-->
+          <img class="nav-icon" src="assets/img/stopwatch.png">
+          <strong>Inicio</strong>
+        </h5>
+        <button type="button" id="button-windows" data-section="carrera"  class="nav-button">Carrera</em></button>
+      </div>
 
-    <div class="nav-item">
-      <h5 class="nav-category">
-        <img class="nav-icon" src="assets/img/route.png">
-        <strong>Carreras</strong>
-      </h5>
-      <button type="button" id="button-windows" data-section="nueva-carrera"  class="nav-button">Nueva carrera</em></button>
-      <button type="button" id="buttonca2" data-section="ver-carreras" class="nav-button">Ver carreras</em></button>
-    </div>
+      <div class="nav-item">
+        <h5 class="nav-category">
+          <img class="nav-icon" src="assets/img/route.png">
+          <strong>Carreras</strong>
+        </h5>
+        <button type="button" id="button-windows" data-section="nueva-carrera"  class="nav-button">Nueva carrera</em></button>
+        <button type="button" id="buttonca2" data-section="ver-carreras" class="nav-button">Ver carreras</em></button>
+      </div>
 
-    <div class="nav-item">
-      <h5 class="nav-category">
-        <svg class="nav-icon"><use xlink:href="assets/img/users.svg#Layer_1"></use></svg>
-        <!--<img class="nav-icon" src="assets/img/Layer_1.png">-->
-        <strong>Corredores</strong>
-      </h5>
-      <button type="button" id="buttoncorredores1" data-section="nuevo-corredor"  class="nav-button">Nuevo corredor</em></button>
-      <button type="button" id="buttoncorredores2" data-section="ver-corredores" class="nav-button">Ver corredores</em></button>
-      <button type="button" id="buttoncorredores3" data-section="consulta" class="nav-button">prueba</em></button>
-    </div>
+      <div class="nav-item">
+        <h5 class="nav-category">
+          <svg class="nav-icon"><use xlink:href="assets/img/users.svg#Layer_1"></use></svg>
+          <!--<img class="nav-icon" src="assets/img/Layer_1.png">-->
+          <strong>Corredores</strong>
+        </h5>
+        <button type="button" id="buttoncorredores1" data-section="nuevo-corredor"  class="nav-button">Nuevo corredor</em></button>
+        <button type="button" id="buttoncorredores2" data-section="ver-corredores" class="nav-button">Ver corredores</em></button>
+        <button type="button" id="buttoncorredores3" data-section="consulta" class="nav-button">prueba</em></button>
+      </div>
 
     </nav>
 
-  <main class="content js-content"></main>
+    <main class="content js-content"></main>
 
-  <script>
+    <script>
     require('./js/imports')
     require('./js/funcion')
     require('./js/nav')
 
-  </script>
+    </script>
 
 
-</div>
+  </div>
 </body>
 </html>

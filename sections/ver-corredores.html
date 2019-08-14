@@ -17,22 +17,14 @@
 
       // specify the columns
       var columnDefs = [
-      /*{headerName: "athlete", field: "athlete"},
-      {headerName: "age", field: "age"}  ];*/
+
       {headerName: "documento", field: "documento"},
       {headerName: "nombre", field: "nombre"},
       {headerName: "apellido", field: "apellido", sortable: true, filter: true},
       {headerName: "categoria", field: "categoria", sortable: true, filter: true}
       ];
 
-      // specify the data
-        var rowData = [
-      {documento: "22554985", nombre: "JUAN", apellido: "SORIN", categoria: "MAYOR"},
-      {documento: "25451326", nombre: "ROBERTO", apellido: "PEREZ", categoria: "MAYOR"},
-      {documento: "51246351", nombre: "PEDRO", apellido: "GIMENEZ", categoria: "JUNIOR"},
-      {documento: "33254445", nombre: "MARTIN", apellido: "FERNANDEZ", categoria: "MAYOR"},
-      {documento: "41025001", nombre: "GERARDO", apellido: "DOMINGUEZ", categoria: "JUNIOR"}
-      ];
+
 
       // let the grid know which columns and what data to use
       var gridOptions = {
@@ -48,50 +40,50 @@
       // lookup the container we want the Grid to use
       var eGridDiv = document.querySelector('#verCorredoresGrid');
 
-      // create the grid passing in the div to use together with the columns & data we want to use
+      getRows(function (err, driverResult){
+        gridOptions.api.setRowData(driverResult);
+      });
+
       new agGrid.Grid(eGridDiv, gridOptions);
 
-      /*
-      function getFirstTenRows(callback){
-        var mysql = require('mysql');
-        // Add the credentials to access your database
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'sample_data'
-        });
 
-        // connect to mysql
-        connection.connect(function(err) {
-          // in case of error
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
+//nuevo
+function getRows(callback){
+     var mysql = require('mysql');
+     var connection = mysql.createConnection({
+       host     : 'localhost',
+       user     : 'root',
+       password : null,
+       database : 'bicisoft'
+     });
 
-        // Perform a query
-        $query = 'SELECT JSON_OBJECT('athlete', athlete, 'age', age)  FROM olympic_winners limit 1';
-        //$query = 'SELECT athlete, age FROM `olympic_winners` limit 10';
+       connection.connect(function(err) {
+       if(err){
+           console.log(err.code);
+           console.log(err.fatal);
+         }
+       });
+       console.log("performing query");
+       // Perform a query
+       $query = 'SELECT * FROM `corredores`';
+       connection.query($query, function(err, rows, fields) {
+         if(err){
+           console.log("An error ocurred performing the query.");
+           console.log(err);
+           return;
+         }
+         console.log(rows);
+         console.log("Query succesfully executed");
+         callback(err, rows);
 
-        connection.query($query, function(err, rows, fields) {
-          if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
-            return;
-          }
 
-          callback(rows);
+       });
 
-          console.log("Query succesfully executed");
-        });
-
-        // Close the connection
-        connection.end(function(){
-          // The connection has been closed
-        });
-      }*/
+       // Close the connection
+       connection.end(function(){
+         // The connection has been closed
+       });
+}
 
     </script>
   </section>
