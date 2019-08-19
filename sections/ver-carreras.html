@@ -9,68 +9,152 @@
         <h3>Carreras</h3>
       </div>
     </header>
-
-    <div class="demo">
-
-      <div class="pform">
-      <span style="width: 60px;">Carrera</span>
-      <div class="select">
-        <select name="slct" id="selectBox">
-          <option selected disabled>Seleccionar...</option>
-          <option value="1">Ene19 Vuelta Rio Grande</option>
-          <option value="2">Mar19 Postas</option>
-        </select>
-      </div>
-      </div>
+    <div >
+    <select id="select-carreras"  style="width:250px;"  placeholder="Elegir Carrera..."></select>
+    </div>
+    INSCRIPTOS
+    <div id="ccGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
 
 
-<br/>
 
-<div>
-  <b class="" style="text-align: left;">
-  Participantes
-</b>
-  <button class="boton" style="margin: 5px; margin-left:150px;" id="frameless-window">Agregar</button>
-  <button class="boton" style="margin: 5px;" id="frameless-window2">Quitar</button>
-</div>
-  <div id="verCarrerasGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+      <script type="text/javascript" charset="utf-8">
+        var $idCarrera;
 
-    <script type="text/javascript" charset="utf-8">
+        var $selectCarreras = $('#select-carreras').selectize({
+          maxItems: 1,
+          valueField: 'id',
+          labelField: 'nombre',
+          searchField: 'nombre',
+          onChange:function(value){
+                    //console.log("funcionvalue"+value);
+                    $idCarrera = value;
+                    //se refrescan los datos de la tabla cuando cambia la seleccion en la lista
+                    getCorredoresCarrera(function (err, result){
+                      gridOptionsCarreras.api.setRowData(result);
+                    });
 
-      // specify the columns
-      var columnDefs = [
-        {headerName: "numero", field: "numero", sortable: true},
+
+
+                    console.log("funcion value "+$idCarrera);
+                    //$('#log').append('<div><span class="name">' + $("#select-carreras option:selected").text()  + '</span></div>');
+                    },
+          create: false
+
+        });
+
+        var selectizeCarreras = $selectCarreras[0].selectize;
+
+
+        getCarreras(function (err, result){
+          selectizeCarreras.addOption(result);
+          selectizeCarreras.refreshOptions();
+
+        });
+
+        function getCarreras(callback){
+          var mysql = require('mysql');
+          var connection = mysql.createConnection({
+            host     : 'localhost',
+            user     : 'root',
+            password : null,
+            database : 'bicisoft'
+          });
+
+          connection.connect(function(err) {
+            if(err){
+              console.log(err.code);
+              console.log(err.fatal);
+            }
+          });
+          console.log("performing query");
+          // Perform a query
+          $query = 'SELECT * FROM carreras_view';
+          connection.query($query, function(err, rows, fields) {
+            if(err){
+              console.log("An error ocurred performing the query.");
+              console.log(err);
+              return;
+            }
+            console.log("Query categorias succesfully executed");
+            callback(err, rows);
+
+
+          });
+
+          // Close the connection
+          connection.end(function(){
+            // The connection has been closed
+          });
+        }
+
+        //EMPIEZA configuracion TABLA
+
+        // specify the columns
+        var columnDefsCarreras = [
+        {headerName: "documento", field: "documento"},
         {headerName: "nombre", field: "nombre"},
         {headerName: "apellido", field: "apellido", sortable: true, filter: true},
         {headerName: "categoria", field: "categoria", sortable: true, filter: true}
-      ];
+        ];
 
-      // specify the data
-      var rowData = [
-        {numero: "231", nombre: "JUAN", apellido: "SORIN", categoria: "MAYOR"},
-        {numero: "432", nombre: "ROBERTO", apellido: "PEREZ", categoria: "MAYOR"},
-        {numero: "123", nombre: "PEDRO", apellido: "GIMENEZ", categoria: "JUNIOR"},
-        {numero: "244", nombre: "MARTIN", apellido: "FERNANDEZ", categoria: "MAYOR"},
-        {numero: "342", nombre: "GERARDO", apellido: "DOMINGUEZ", categoria: "JUNIOR"}
-      ];
-
-      // let the grid know which columns and what data to use
-      var gridOptions = {
-              defaultColDef: {
-              width: 110,
-              resizable: true
+        // let the grid know which columns and what data to use
+        var gridOptionsCarreras = {
+          defaultColDef: {
+            width: 110,
+            resizable: true
           },
-        columnDefs: columnDefs,
-        rowData: rowData
+          columnDefs: columnDefsCarreras,
+        };
 
-      };
+        // lookup the container we want the Grid to use
+        var eGridDivCarreras = document.querySelector('#ccGrid');
 
-    // lookup the container we want the Grid to use
-    var eGridDiv = document.querySelector('#verCarrerasGrid');
+        getCorredoresCarrera(function (err, result){
+          gridOptionsCarreras.api.setRowData(result);
+        });
 
-    // create the grid passing in the div to use together with the columns & data we want to use
-    new agGrid.Grid(eGridDiv, gridOptions);
+        new agGrid.Grid(eGridDivCarreras, gridOptionsCarreras);
 
-    </script>
-  </section>
-</template>
+
+        //nuevo
+        function getCorredoresCarrera(callback){
+          var mysql = require('mysql');
+          var connection = mysql.createConnection({
+            host     : 'localhost',
+            user     : 'root',
+            password : null,
+            database : 'bicisoft'
+          });
+
+          connection.connect(function(err) {
+            if(err){
+              console.log(err.code);
+              console.log(err.fatal);
+            }
+          });
+          console.log("performing query");
+          // Perform a query
+          $query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+$idCarrera;
+          connection.query($query, function(err, rows, fields) {
+            if(err){
+              console.log("An error ocurred performing the query.");
+              console.log(err);
+              return;
+            }
+            console.log("Query succesfully executed (carreras, corredores)");
+            callback(err, rows);
+
+
+          });
+
+          // Close the connection
+          connection.end(function(){
+            // The connection has been closed
+          });
+        }
+
+      </script>
+
+
+    </section>
+  </template>
