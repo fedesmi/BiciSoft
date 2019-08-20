@@ -15,101 +15,195 @@
       </div>
     </header>
 
-    <div class="pform">
-      <span style="width: 60px;">Carrera</span>
-      <div class="select">
-        <select name="slct" id="selectBox">
-          <option selected disabled>Seleccionar...</option>
-          <option value="1">Ene19 Vuelta Rio Grande</option>
-          <option value="2">Mar19 Postas</option>
-        </select>
-      </div>
-      <button class="boton" onclick="myFunction()"  id="botonEmpezar"  >Empezar</button>
-  </div>
-  <script>
-    function myFunction()
-    {
-      if (document.getElementById("botonEmpezar").innerHTML === "Terminar")
-      {
-        document.getElementById("botonEmpezar").innerHTML ="Empezar";
-        document.getElementById("selectBox").disabled = false;
+
+    <table columns="2">
+      <tr class="trinput">
+        <td>Tipo</td>
+        <td class="tdinput"><select id="select-carreras-correr"  style="width:250px;"  placeholder="Elegir Carrera..."></select></td>
+        <td class="tdinput"><button class="boton" onclick="manejarCarrera()"  id="botonEmpezar"  >Empezar</button></td>
+      </tr>
+      <tr class="trinput">
+        <td>Marcar #</td>
+        <td class="tdinput"><input type="text" id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="enter para marcar"></td>
+      </tr>
+
+    </table>
+
+    <div id="gridCorredoresCarreras" disabled style="height: 350px;width:700px;" class="ag-theme-balham"></div>
+
+    <script>
+      function manejarCarrera(){
+        if (document.getElementById("botonEmpezar").innerHTML === "Terminar"){
+          document.getElementById("botonEmpezar").innerHTML ="Empezar";
+          $('#select-carreras-correr')[0].selectize.enable();
+          //document.getElementById("select-carreras-correr").disabled = false;
+        }
+        else {
+          document.getElementById("botonEmpezar").innerHTML = "Terminar";
+          $('#select-carreras-correr')[0].selectize.disable();
+          //document.getElementById("select-carreras-correr").disabled = true;
+        }
       }
-      else {
-        document.getElementById("botonEmpezar").innerHTML = "Terminar";
-        document.getElementById("selectBox").disabled = true;
+
+      function manejarMarca(event){
+        if (event.keyCode===13){
+          document.getElementById("marcarField").innerHTML ="";
+        }
+
       }
-    }
-  </script>
 
-    <p class="pform"><span class="spanform" style="width: 60px;">Marcar #</span>
-      <input type="text" class="input" style="width: 130px; float: left; margin-left: 10px;" name="sidebar-color" placeholder="enter para marcar" >
-
-    </p>
-
-    <div id="gridCorredoresCarrera" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+    </script>
 
 
 
 
-  <script type="text/javascript" charset="utf-8">
 
-    // specify the columns
-    var columnDefsC = [
-      {headerName: "general", field: "general", sortable: true},
-      {headerName: "posición", field: "posicion", sortable: true},
-      {headerName: "numero", field: "numero", sortable: true},
-      {headerName: "nombre", field: "nombre"},
-      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "tiempo", field: "tiempo", sortable: true},
-      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
-    ];
 
-    // specify the data
-    var rowDataC = [
-      {general: "1", posicion: "1", numero: "231", nombre: "JUAN", apellido: "SORIN", tiempo: "00:30:33", categoria: "MAYOR"},
-      {general: "2", posicion: "2", numero: "432", nombre: "ROBERTO", apellido: "PEREZ", tiempo: "00:33:23", categoria: "MAYOR"},
-      {general: "3", posicion: "1", numero: "123", nombre: "PEDRO", apellido: "GIMENEZ", tiempo: "00:33:44", categoria: "JUNIOR"},
-      {general: "4", posicion: "3", numero: "244", nombre: "MARTIN", apellido: "FERNANDEZ", tiempo: "00:35:58", categoria: "MAYOR"},
-      {general: "5", posicion: "2", numero: "342", nombre: "GERARDO", apellido: "DOMINGUEZ", tiempo: "00:38:13", categoria: "JUNIOR"}
-    ];
 
-    // let the grid know which columns and what data to use
-  /*var gridOptions = {
-            defaultColDef: {
-            width: 110,
-            resizable: true,
 
+    <script type="text/javascript" charset="utf-8">
+      /*AG GRID DE CARRERAS Y CORREDORES*/
+
+
+      var $idCarreraCorrer;
+
+      var $selectCarrerasCorrer = $('#select-carreras-correr').selectize({
+        maxItems: 1,
+        valueField: 'id',
+        labelField: 'nombre',
+        searchField: 'nombre',
+        onChange:function(value){
+          //console.log("funcionvalue"+value);
+          $idCarreraCorrer = value;
+          //se refrescan los datos de la tabla cuando cambia la seleccion en la lista
+          getCorredoresCarreras(function (err, result){
+            gridOptionsCarrerasCorredores.api.setRowData(result);
+          });
+
+          //se pone la fecha
+          //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
+
+          console.log("funcion value "+$idCarreraCorrer);
         },
-      columnDefs: columnDefs,
-      rowData: rowData
+        create: false
 
-    };*/
-    var gridOptions1 = {
-    columnDefs: columnDefsC,
-    rowData: rowDataC,
-    onGridReady: function (params) {
-        params.api.sizeColumnsToFit();
+      });
 
-        window.addEventListener('resize', function() {
-          setTimeout(function() {
-            params.api.sizeColumnsToFit();
-          })
-        })
-    }
-};
-document.addEventListener("DOMContentLoaded", function() {
-    var eGridDiv = document.querySelector('#gridCorredoresCarrera');
-    new agGrid.Grid(eGridDiv, gridOptions1);
-    gridOptions.api.sizeColumnsToFit();
-});
+      var selectizeCarrerasCorrer = $selectCarrerasCorrer[0].selectize;
 
-/*  // lookup the container we want the Grid to use
-  var eGridDiv = document.querySelector('#myGrid3');
 
-  // create the grid passing in the div to use together with the columns & data we want to use
-  new agGrid.Grid(eGridDiv, gridOptions);*/
+      getCarrerasCorrer(function (err, result){
+        selectizeCarrerasCorrer.addOption(result);
+        selectizeCarrerasCorrer.refreshOptions();
 
-  </script>
+      });
 
-</section>
+      function getCarrerasCorrer(callback){
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+          host     : 'localhost',
+          user     : 'root',
+          password : null,
+          database : 'bicisoft'
+        });
+
+        connection.connect(function(err) {
+          if(err){
+            console.log(err.code);
+            console.log(err.fatal);
+          }
+        });
+        console.log("performing query");
+        // Perform a query
+        $query = 'SELECT * FROM carreras_no_finalizadas_view';
+        connection.query($query, function(err, rows, fields) {
+          if(err){
+            console.log("An error ocurred performing the query.");
+            console.log(err);
+            return;
+          }
+          console.log("Query categorias succesfully executed");
+          callback(err, rows);
+
+
+        });
+
+        // Close the connection
+        connection.end(function(){
+          // The connection has been closed
+        });
+      }
+
+      //EMPIEZA configuracion TABLA
+
+      // specify the columns
+      var columnDefsCarrerasCorredores = [
+      {headerName: "Pos", field: "posicion", sortable: true, width:65},
+      {headerName: "Global", field: "global", sortable: true, width:75},
+      {headerName: "#", field: "numero", filter: true, width:50},
+      {headerName: "Nombre", field: "nombre", width:100},
+      {headerName: "Apellido", field: "apellido", width:110},
+      {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
+      {headerName: "Tiempo", field: "tiempo", width:80},
+      {headerName: "Vueltas", field: "vueltas", width:80}
+      ];
+
+      // let the grid know which columns and what data to use
+      var gridOptionsCarrerasCorredores = {
+        defaultColDef: {
+          resizable: false
+        },
+        columnDefs: columnDefsCarrerasCorredores,
+      };
+
+      // lookup the container we want the Grid to use
+      var eGridDivCarrerasCorredores = document.querySelector('#gridCorredoresCarreras');
+
+      getCorredoresCarreras(function (err, result){
+        gridOptionsCarrerasCorredores.api.setRowData(result);
+      });
+
+      new agGrid.Grid(eGridDivCarrerasCorredores, gridOptionsCarrerasCorredores);
+
+
+      //nuevo
+      function getCorredoresCarreras(callback){
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+          host     : 'localhost',
+          user     : 'root',
+          password : null,
+          database : 'bicisoft'
+        });
+
+        connection.connect(function(err) {
+          if(err){
+            console.log(err.code);
+            console.log(err.fatal);
+          }
+        });
+        console.log("performing query");
+        // Perform a query
+        $query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+$idCarreraCorrer;
+        connection.query($query, function(err, rows, fields) {
+          if(err){
+            console.log("An error ocurred performing the query.");
+            console.log(err);
+            return;
+          }
+          console.log("Query succesfully executed (carreras, corredores)");
+          callback(err, rows);
+
+
+        });
+
+        // Close the connection
+        connection.end(function(){
+          // The connection has been closed
+        });
+      }
+
+    </script>
+
+  </section>
 </template>

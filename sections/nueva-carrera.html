@@ -21,7 +21,7 @@
       </tr>
       <tr class="trinput">
         <td>Tipo</td>
-        <td class="tdinput"><select id="select-tcarrera" style="float: right; width: 320px;" placeholder="Elegir Categoría..."></select></td>
+        <td class="tdinput"><select id="select-tcarrera" readonly style="float: right; width: 320px;" placeholder="Elegir Categoría..."></select></td>
       </tr>
     </table>
 
@@ -38,11 +38,11 @@
       maxItems: 1,
       valueField: 'id',
       labelField: 'descripcion',
-      searchField: 'descripcion',
       create: false
     });
 
     var selectize_tcarreas = $select_tcarreas[0].selectize;
+
 
     getTCarreras(function (err, result){
       selectize_tcarreas.addOption(result);
