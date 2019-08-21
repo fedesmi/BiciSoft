@@ -34,16 +34,29 @@
     <script>
       function manejarCarrera(){
         if (document.getElementById("botonEmpezar").innerHTML === "Terminar"){
-          document.getElementById("botonEmpezar").innerHTML ="Empezar";
-          $('#select-carreras-correr')[0].selectize.enable();
-          //document.getElementById("select-carreras-correr").disabled = false;
+          terminarCarrera();
         }
         else {
-          document.getElementById("botonEmpezar").innerHTML = "Terminar";
-          $('#select-carreras-correr')[0].selectize.disable();
-          //document.getElementById("select-carreras-correr").disabled = true;
+          empezarCarrera();
         }
       }
+
+      function empezarCarrera(){
+        //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA
+        document.getElementById("botonEmpezar").innerHTML = "Terminar";
+        $('#select-carreras-correr')[0].selectize.disable();
+      }
+
+      function terminarCarrera(){
+        // MARCAR CARRERA TERMINADA (AVISAR QUE QUEDAN CORREDORES SIN FINALIZAR
+        //Y SE TOMARAN EN CUENTA COMO DESCALIFICADOS).
+        
+        document.getElementById("botonEmpezar").innerHTML ="Empezar";
+        $('#select-carreras-correr')[0].selectize.enable();
+
+      }
+
+
 
       function manejarMarca(event){
         if (event.keyCode===13){
@@ -51,6 +64,7 @@
         }
 
       }
+
 
     </script>
 
