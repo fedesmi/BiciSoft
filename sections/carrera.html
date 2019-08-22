@@ -19,19 +19,43 @@
     <table columns="2">
       <tr class="trinput">
         <td>Tipo</td>
-        <td class="tdinput"><select id="select-carreras-correr"  style="width:250px;"  placeholder="Elegir Carrera..."></select></td>
+        <td class="tdinput"><select id="select-carreras-correr"  style="width:350px;"  placeholder="Elegir Carrera..."></select></td>
         <td class="tdinput"><button class="boton" onclick="manejarCarrera()"  id="botonEmpezar"  >Empezar</button></td>
       </tr>
-      <tr class="trinput">
+      <tr class="trinput" style="height: 100px;" >
         <td>Marcar #</td>
-        <td class="tdinput"><input type="text" id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="enter para marcar"></td>
+        <td class="tdinput"><input type="text" disabled="true"
+          style="font-weight: bolder;
+                  height: 80px;
+                  width: 340px;
+                  font-size: 75px;
+                  color: YELLOW;"
+          id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="MARCAR"></td>
+          <td>
+            <ul style="list-style-type:none; background: #2c3e50;color: #CCCCCC;  padding-left:5px; height: 80px;">
+              <li>#411 (13:06:02hs)</li>
+              <li>#411 (13:00:54hs)</li>
+              <li>#200 (12:58:20hs)</li>
+            </ul>
+          </td>
       </tr>
 
     </table>
 
-    <div id="gridCorredoresCarreras" disabled style="height: 350px;width:700px;" class="ag-theme-balham"></div>
+    <div id="gridCorredoresCarreras" style="height: 300px;width:700px;" class="ag-theme-balham"></div>
 
     <script>
+      var $idCarreraCorrer;
+
+      //CONSULTAS SQL
+      var $sqlCorredoresCarrera = 'SELECT * FROM carrera_corredor_view WHERE id_carrera=';
+      var $sqlCarrerasNoFinalizadas = 'SELECT * FROM carreras_no_finalizadas_view';
+      var $sqlInsertarMarca  = 'INSERT INTO carrera_marcas(id_carrera, id_corredor, marca) ';
+      //var $sqlUltimosMarcados =  'SELECT * FROM carrera_marcas where id_carrera = '++'  ORDER BY marca  DESC limit 3';
+      var $sql;
+
+
+
       function manejarCarrera(){
         if (document.getElementById("botonEmpezar").innerHTML === "Terminar"){
           terminarCarrera();
@@ -42,44 +66,53 @@
       }
 
       function empezarCarrera(){
+        //SI SE CERRO LA APLICACION, INICIA DESDE DONDE ESTABA LA CARRERA
         //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA
+        //dependiendo el tipo de carrera
+        $sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+$idCarreraCorrer+', numero, now()   FROM `carrera_corredores`';
+        sqlQuery(function (err, result){}, $sql);
+        //dependiendo el tipo de carreras
+
+
+        document.getElementById("marcarField").disabled = false;
         document.getElementById("botonEmpezar").innerHTML = "Terminar";
         $('#select-carreras-correr')[0].selectize.disable();
+
       }
 
       function terminarCarrera(){
         // MARCAR CARRERA TERMINADA (AVISAR QUE QUEDAN CORREDORES SIN FINALIZAR
         //Y SE TOMARAN EN CUENTA COMO DESCALIFICADOS).
-        
+        $sql='UPDATE carreras set terminada=1 where id ='+$idCarreraCorrer;
+        sqlQuery(function (err, result){}, $sql);
+
+
+        document.getElementById("marcarField").disabled = true;
         document.getElementById("botonEmpezar").innerHTML ="Empezar";
         $('#select-carreras-correr')[0].selectize.enable();
 
       }
 
 
-
-      function manejarMarca(event){
+     function manejarMarca(event){
         if (event.keyCode===13){
-          document.getElementById("marcarField").innerHTML ="";
+          $numeroCorredor = document.getElementById("marcarField").value;
+          $sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) VALUES('+$idCarreraCorrer+', '+$numeroCorredor+', now())';
+            sqlQuery(function (err, result){}, $sql);
+          //sqlQuery(function (err, result){}, $sqlInsertarMarca);
+          document.getElementById("marcarField").value ="";
         }
 
       }
 
 
-    </script>
-
-
-
-
-
-
-
-
-    <script type="text/javascript" charset="utf-8">
       /*AG GRID DE CARRERAS Y CORREDORES*/
 
 
-      var $idCarreraCorrer;
+
+
+
+
 
       var $selectCarrerasCorrer = $('#select-carreras-correr').selectize({
         maxItems: 1,
@@ -90,14 +123,14 @@
           //console.log("funcionvalue"+value);
           $idCarreraCorrer = value;
           //se refrescan los datos de la tabla cuando cambia la seleccion en la lista
-          getCorredoresCarreras(function (err, result){
+          sqlQuery(function (err, result){
             gridOptionsCarrerasCorredores.api.setRowData(result);
-          });
+          }, $sqlCorredoresCarrera+$idCarreraCorrer);
+
 
           //se pone la fecha
           //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
 
-          console.log("funcion value "+$idCarreraCorrer);
         },
         create: false
 
@@ -105,48 +138,11 @@
 
       var selectizeCarrerasCorrer = $selectCarrerasCorrer[0].selectize;
 
-
-      getCarrerasCorrer(function (err, result){
+      sqlQuery(function (err, result){
         selectizeCarrerasCorrer.addOption(result);
         selectizeCarrerasCorrer.refreshOptions();
+      }, $sqlCarrerasNoFinalizadas);
 
-      });
-
-      function getCarrerasCorrer(callback){
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'bicisoft'
-        });
-
-        connection.connect(function(err) {
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
-        console.log("performing query");
-        // Perform a query
-        $query = 'SELECT * FROM carreras_no_finalizadas_view';
-        connection.query($query, function(err, rows, fields) {
-          if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
-            return;
-          }
-          console.log("Query categorias succesfully executed");
-          callback(err, rows);
-
-
-        });
-
-        // Close the connection
-        connection.end(function(){
-          // The connection has been closed
-        });
-      }
 
       //EMPIEZA configuracion TABLA
 
@@ -173,15 +169,15 @@
       // lookup the container we want the Grid to use
       var eGridDivCarrerasCorredores = document.querySelector('#gridCorredoresCarreras');
 
-      getCorredoresCarreras(function (err, result){
+
+      sqlQuery(function (err, result){
         gridOptionsCarrerasCorredores.api.setRowData(result);
-      });
+      },  $sqlCorredoresCarrera+$idCarreraCorrer);
 
       new agGrid.Grid(eGridDivCarrerasCorredores, gridOptionsCarrerasCorredores);
 
-
-      //nuevo
-      function getCorredoresCarreras(callback){
+      //FUNCION DE CONSULTAS A MYSQL
+      function sqlQuery(callback, $queryString){
         var mysql = require('mysql');
         var connection = mysql.createConnection({
           host     : 'localhost',
@@ -189,7 +185,6 @@
           password : null,
           database : 'bicisoft'
         });
-
         connection.connect(function(err) {
           if(err){
             console.log(err.code);
@@ -198,19 +193,15 @@
         });
         console.log("performing query");
         // Perform a query
-        $query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+$idCarreraCorrer;
-        connection.query($query, function(err, rows, fields) {
+        connection.query($queryString, function(err, rows, fields) {
           if(err){
             console.log("An error ocurred performing the query.");
             console.log(err);
             return;
           }
-          console.log("Query succesfully executed (carreras, corredores)");
+          console.log("Query categorias succesfully executed");
           callback(err, rows);
-
-
         });
-
         // Close the connection
         connection.end(function(){
           // The connection has been closed
