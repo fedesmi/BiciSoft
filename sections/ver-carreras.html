@@ -14,13 +14,20 @@
       <pre id="fecha"></pre>
     </div>
     INSCRIPTOS
+    <button class="boton" onclick="inscribirCarrera()" disabled=true; id="botonInscribir"  >Inscribir</button>
     <div id="ccGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
 
 
 
     <script type="text/javascript" charset="utf-8">
       var $idCarrera;
-      
+      var $carreraTerminada;
+
+
+      function inscribirCarrera(){
+
+      }
+
       var $selectCarreras = $('#select-carreras').selectize({
         maxItems: 1,
         valueField: 'id',
