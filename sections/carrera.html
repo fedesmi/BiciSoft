@@ -45,8 +45,8 @@
     <div id="gridCorredoresCarreras" style="height: 300px;width:700px;" class="ag-theme-balham"></div>
 
     <script>
+      //ID CARRERA SELECCIONADA
       var $idCarreraCorrer;
-
       //CONSULTAS SQL
       var $sqlCorredoresCarrera = 'SELECT * FROM carrera_corredor_view WHERE id_carrera=';
       var $sqlCarrerasNoFinalizadas = 'SELECT * FROM carreras_no_finalizadas_view';
@@ -55,7 +55,7 @@
       var $sql;
 
 
-
+      //SETUP Y COMPORTAMIENTO BOTON EMPEZAR/TERMINAR
       function manejarCarrera(){
         if (document.getElementById("botonEmpezar").innerHTML === "Terminar"){
           terminarCarrera();
@@ -65,6 +65,7 @@
         }
       }
 
+      //FUNCION EMPEZAR CARRERA
       function empezarCarrera(){
         //SI SE CERRO LA APLICACION, INICIA DESDE DONDE ESTABA LA CARRERA
         //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA
@@ -72,28 +73,26 @@
         $sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+$idCarreraCorrer+', numero, now()   FROM `carrera_corredores`';
         sqlQuery(function (err, result){}, $sql);
         //dependiendo el tipo de carreras
-
-
         document.getElementById("marcarField").disabled = false;
         document.getElementById("botonEmpezar").innerHTML = "Terminar";
         $('#select-carreras-correr')[0].selectize.disable();
-
       }
+      //FIN EMPEZAR CARRERA
 
+      //FUNCION TERMINAR CARRERA
       function terminarCarrera(){
         // MARCAR CARRERA TERMINADA (AVISAR QUE QUEDAN CORREDORES SIN FINALIZAR
         //Y SE TOMARAN EN CUENTA COMO DESCALIFICADOS).
         $sql='UPDATE carreras set terminada=1 where id ='+$idCarreraCorrer;
         sqlQuery(function (err, result){}, $sql);
 
-
         document.getElementById("marcarField").disabled = true;
         document.getElementById("botonEmpezar").innerHTML ="Empezar";
         $('#select-carreras-correr')[0].selectize.enable();
-
       }
+      //FIN TERMINAR CARRERA
 
-
+      //FUNCION MARCAR CORREDOR
      function manejarMarca(event){
         if (event.keyCode===13){
           $numeroCorredor = document.getElementById("marcarField").value;
@@ -102,18 +101,11 @@
           //sqlQuery(function (err, result){}, $sqlInsertarMarca);
           document.getElementById("marcarField").value ="";
         }
-
       }
+      //FIN MARCAR CORREDOR
 
-
-      /*AG GRID DE CARRERAS Y CORREDORES*/
-
-
-
-
-
-
-
+      //INICIALIZACION
+      //SETUP DE LISTA DESPLEGABLE
       var $selectCarrerasCorrer = $('#select-carreras-correr').selectize({
         maxItems: 1,
         valueField: 'id',
@@ -126,26 +118,17 @@
           sqlQuery(function (err, result){
             gridOptionsCarrerasCorredores.api.setRowData(result);
           }, $sqlCorredoresCarrera+$idCarreraCorrer);
-
-
-          //se pone la fecha
-          //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
-
         },
         create: false
-
       });
-
       var selectizeCarrerasCorrer = $selectCarrerasCorrer[0].selectize;
-
       sqlQuery(function (err, result){
         selectizeCarrerasCorrer.addOption(result);
         selectizeCarrerasCorrer.refreshOptions();
       }, $sqlCarrerasNoFinalizadas);
+      //FIN LISTA SETUP DESPLEGABLE
 
-
-      //EMPIEZA configuracion TABLA
-
+      //SETUP TABLA
       // specify the columns
       var columnDefsCarrerasCorredores = [
       {headerName: "Pos", field: "posicion", sortable: true, width:65},
@@ -169,12 +152,15 @@
       // lookup the container we want the Grid to use
       var eGridDivCarrerasCorredores = document.querySelector('#gridCorredoresCarreras');
 
-
       sqlQuery(function (err, result){
         gridOptionsCarrerasCorredores.api.setRowData(result);
       },  $sqlCorredoresCarrera+$idCarreraCorrer);
 
       new agGrid.Grid(eGridDivCarrerasCorredores, gridOptionsCarrerasCorredores);
+      //FIN SETUP TABLA
+
+
+
 
       //FUNCION DE CONSULTAS A MYSQL
       function sqlQuery(callback, $queryString){

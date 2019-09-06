@@ -11,7 +11,7 @@
     </header>
     <div >
       <select id="select-carreras"  style="width:250px;"  placeholder="Elegir Carrera..."></select>
-      <pre id="fecha"></pre>
+      <div id="terminado"></div>
     </div>
     INSCRIPTOS
     <button class="boton" onclick="inscribirCarrera()" disabled=true; id="botonInscribir"  >Inscribir</button>
@@ -28,14 +28,18 @@
 
       }
 
+
+
       var $selectCarreras = $('#select-carreras').selectize({
         maxItems: 1,
         valueField: 'id',
         labelField: 'nombre',
-        searchField: 'nombre',
+        searchField: 'terminada',
         onChange:function(value){
-          //console.log("funcionvalue"+value);
           $idCarrera = value;
+          //setup del boton inscripcion
+          habilitarInscripcion();
+
           //se refrescan los datos de la tabla cuando cambia la seleccion en la lista
           getCorredoresCarrera(function (err, result){
             gridOptionsCarreras.api.setRowData(result);
@@ -43,8 +47,6 @@
 
           //se pone la fecha
           //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
-
-          console.log("funcion value "+$idCarrera);
         },
         create: false
 
@@ -56,7 +58,6 @@
       getCarreras(function (err, result){
         selectizeCarreras.addOption(result);
         selectizeCarreras.refreshOptions();
-
       });
 
       function getCarreras(callback){
@@ -95,8 +96,52 @@
         });
       }
 
-      //EMPIEZA configuracion TABLA
 
+      function habilitarInscripcion(){
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+          host     : 'localhost',
+          user     : 'root',
+          password : null,
+          database : 'bicisoft'
+        });
+        var $isCarreraTerminada = false;
+        connection.connect(function(err) {
+          if(err){
+            console.log(err.code);
+            console.log(err.fatal);
+          }
+        });
+        // Perform a query
+          console.log("consulta de la CUENTA");
+        $query = 'SELECT count(*) as cuenta FROM carreras WHERE id='+$idCarrera+' AND terminada = 0 ' ;
+        connection.query($query, function(err, rows, fields) {
+          if(err){
+            console.log("An error ocurred performing the query.");
+            console.log(err);
+            return;
+          }
+            //console.log("consulta realizada de la CUENTA");
+            if (rows[0].cuenta==0){
+              document.getElementById("botonInscribir").disabled = true;
+              document.getElementById("terminado").innerHTML = "Carrera Finalizada";
+            }else{
+              document.getElementById("botonInscribir").disabled = false;
+              document.getElementById("terminado").innerHTML = "";
+            }
+      });
+
+
+      // si la carrera no esta terminada habilita la edicion, sino la deshabilita
+      /*if ($isCarreraTerminada){
+        document.getElementById("botonInscribir").disabled = true;
+      }else{
+        document.getElementById("botonInscribir").disabled = false;
+      }*/
+    }
+
+
+      //EMPIEZA configuracion TABLA
       // specify the columns
       var columnDefsCarreras = [
       {headerName: "documento", field: "documento"},
@@ -140,7 +185,6 @@
             console.log(err.fatal);
           }
         });
-        console.log("performing query");
         // Perform a query
         $query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+$idCarrera;
         connection.query($query, function(err, rows, fields) {
@@ -149,7 +193,6 @@
             console.log(err);
             return;
           }
-          console.log("Query succesfully executed (carreras, corredores)");
           callback(err, rows);
 
 
@@ -160,6 +203,9 @@
           // The connection has been closed
         });
       }
+
+
+
 
     </script>
 
