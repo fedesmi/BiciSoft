@@ -88,7 +88,12 @@ a {
 }
 
 
-
+.trinput{
+  height: 50px;
+}
+.tdinput{
+  padding-left: 20px;
+}
 
 .input {
   background: #2c3e50;
@@ -117,6 +122,12 @@ a {
 .spanform {
   width:240px;
 }
+
+/**/
+
+.selectize-control * {
+        cursor: pointer;
+    }
 
 /**/
 

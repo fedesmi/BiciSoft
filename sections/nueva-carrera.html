@@ -10,38 +10,82 @@
       </div>
     </header>
 
-    <div class="demo">
-
-
-      <p class="pform"><span class="spanform">Nombre</span> <span class="spanform">
-        <input type="text" class="input" name="background" ></span>
-      </p>
-      <p class="pform"><span class="spanform">Fecha</span> <span class="spanform">
-        <input type="text" class="input" name="border-color" ></span>
-      </p>
-      <div class="pform"><span class="spanform">Tipo</span>  <span class="spanform">
-        <div class="select">
-          <select name="slct" id="slct">
-            <option selected disabled>Seleccionar...</option>
-            <option value="1">Por vueltas</option>
-            <option value="2">Postas</option>
-            <option value="3">Hora y vuelta</option>
-          </select>
-        </div>
-      </span>
-    </div>
+    <table columns="2">
+      <tr class="trinput">
+        <td>Nombre</td>
+        <td class="tdinput"><input type="text" class="input" name="background" ></td>
+      </tr>
+      <tr class="trinput">
+        <td>Fecha</td>
+        <td class="tdinput"><input type="text" class="input" name="background" ></td>
+      </tr>
+      <tr class="trinput">
+        <td>Tipo</td>
+        <td class="tdinput"><select id="select-tcarrera" readonly style="float: right; width: 320px;" placeholder="Elegir Categoría..."></select></td>
+      </tr>
+    </table>
 
 
 
     <div style="text-align: center; margin-top:30px;">
-    <button class="boton" id="limpiarBtn">Limpiar</button>
-    <button class="boton" id="guardarbtn">Guardar</button>
+      <button class="boton" id="limpiarBtn">Limpiar</button>
+      <button class="boton" id="guardarbtn">Guardar</button>
     </div>
-
   </div>
-
   <script type="text/javascript">
-    require('./js/frameless-window')
+    // <select id="select-tools"></select>
+    var $select_tcarreas = $('#select-tcarrera').selectize({
+      maxItems: 1,
+      valueField: 'id',
+      labelField: 'descripcion',
+      create: false
+    });
+
+    var selectize_tcarreas = $select_tcarreas[0].selectize;
+
+
+    getTCarreras(function (err, result){
+      selectize_tcarreas.addOption(result);
+      selectize_tcarreas.refreshOptions();
+
+    });
+
+    function getTCarreras(callback){
+      var mysql = require('mysql');
+      var connection = mysql.createConnection({
+        host     : 'localhost',
+        user     : 'root',
+        password : null,
+        database : 'bicisoft'
+      });
+
+      connection.connect(function(err) {
+        if(err){
+          console.log(err.code);
+          console.log(err.fatal);
+        }
+      });
+      console.log("performing query");
+      // Perform a query
+      $query = 'SELECT * FROM tipo_carreras';
+      connection.query($query, function(err, rows, fields) {
+        if(err){
+          console.log("An error ocurred performing the query.");
+          console.log(err);
+          return;
+        }
+        console.log("Query categorias succesfully executed");
+        callback(err, rows);
+
+
+      });
+
+      // Close the connection
+      connection.end(function(){
+        // The connection has been closed
+      });
+    }
+
   </script>
 </section>
 </template>
