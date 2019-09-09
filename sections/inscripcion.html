@@ -1,0 +1,264 @@
+<template class="task-template">
+  <section id="inscripcion-section" class="section js-section u-category-native-ui">
+    <header class="communication">
+      <div class="section-wrapper">
+        <h1>
+          <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-native-ui"></use></svg>
+          Inscripciones
+        </h1>
+        <h3>Carreras no finalizadas</h3>
+      </div>
+    </header>
+    <table  columns="2">
+      <tr>
+        <td>
+          <select id="select-carreras_i"  style="width:250px;"  placeholder="Elegir Carrera..."></select>
+        </td>
+        <td>
+          <button class="boton" onclick="inscribirCarrera_i()" disabled=true;  id="botonInscribir_i"  >Inscribir</button>
+          <button class="boton" onclick="quitarCarrera_i()" disabled=true;  id="botonQuitar_i"  >Quitar</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <br/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="test-header">
+            CORREDORES
+          </div>
+          <div id="inscripcionCorredoresGrid"  style="height:330px; width:320px;" class="ag-theme-balham"></div>
+        </td>
+        <td>
+          <div class="test-header">
+            INSCRIPTOS
+            <span id="selectedRows"></span>
+          </div>
+          <div id="inscriptosGrid" disabled style="height:330px; width:320px;" class="ag-theme-balham"></div>
+        </td>
+      </tr>
+    </table>
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      var $idCarrera_i;
+      var $carreraTerminada_i;
+      var $agregarSeleccionado;
+      var $quitarSeleccionado;
+
+
+      function inscribirCarrera_i(){
+
+        sqlQuery(function (err, result){refrescarInscriptosGrid()}, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+$idCarrera_i+", "+$agregarSeleccionado+", 0)");
+
+      }
+      function quitarCarrera_i(){
+
+        sqlQuery(function (err, result){ refrescarInscriptosGrid()}, "DELETE FROM carrera_corredores WHERE id_carrera="+$idCarrera_i+" AND id_corredor= "+$quitarSeleccionado);
+
+      }
+
+
+
+      //LISTA DESPLEGABLE DE CARRERAS
+      var $selectCarreras_i = $('#select-carreras_i').selectize({
+        maxItems: 1,
+        valueField: 'id',
+        labelField: 'nombre',
+        searchField: 'terminada',
+        onChange:function(value){
+          $idCarrera_i = value;
+
+          //setup del boton inscripcion
+          if (value>0){
+            document.getElementById("botonInscribir_i").disabled = false;
+            document.getElementById("botonQuitar_i").disabled = false;
+
+          }else{
+            document.getElementById("botonInscribir_i").disabled = true;
+            document.getElementById("botonQuitar_i").disabled = true;
+          }
+
+          refrescarInscriptosGrid();
+
+          //se pone la fecha
+          //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
+        },
+        create: false
+
+      });
+
+      var selectizeCarreras_i = $selectCarreras_i[0].selectize;
+
+
+      getCarreras_i(function (err, result){
+        selectizeCarreras_i.addOption(result);
+        selectizeCarreras_i.refreshOptions();
+      });
+
+      function getCarreras_i(callback){
+        $query =  'SELECT * FROM carreras_view WHERE terminada = 0';
+        sqlQuery(callback, $query);
+      }
+      //FIN LISTA DESPLEGABLE Carreras
+
+
+
+
+
+      //EMPIEZA configuracion TABLA CORREDORES
+      var columnDefsCorredores = [
+      {headerName: "documento", field: "documento"},
+      {headerName: "nombre", field: "nombre"},
+      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
+      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+      ];
+
+      // let the grid know which columns and what data to use
+      var gridOptionsCorredores = {
+        defaultColDef: {
+          width: 110,
+          resizable: true
+        },
+        rowSelection: 'single',
+        onSelectionChanged: onSelectionChangedCorredores,
+        columnDefs: columnDefsCorredores
+        //rowData: rowData
+
+      };
+
+      function onSelectionChangedCorredores() {
+        var selectedRows = gridOptionsCorredores.api.getSelectedRows();
+        var selectedRowsString = '';
+        selectedRows.forEach( function(selectedRow, index) {
+          if (index!==0) {
+            selectedRowsString += ', ';
+          }
+          selectedRowsString += selectedRow.documento;
+          $agregarSeleccionado = selectedRow.documento;
+        });
+        //  document.querySelector('#selectedRows').innerHTML = selectedRowsString;
+
+      }
+
+      // lookup the container we want the Grid to use
+      var eGridDivCorredores = document.querySelector('#inscripcionCorredoresGrid');
+      getRowsCorredores(function (err, result){
+        gridOptionsCorredores.api.setRowData(result);
+      });
+
+      new agGrid.Grid(eGridDivCorredores, gridOptionsCorredores);
+
+
+      //INSCRIPTOS
+      function getRowsCorredores(callback){
+        $query =  'SELECT * FROM corredores_view';
+        sqlQuery(callback, $query);
+
+      }
+      //FIN TABLA CORREDORES
+
+
+      //EMPIEZA configuracion TABLA INSCRIPTOS
+      // specify the columns
+      var columnDefsCarreras_i = [
+      {headerName: "documento", field: "documento"},
+      {headerName: "nombre", field: "nombre"},
+      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
+      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+      ];
+
+      // let the grid know which columns and what data to use
+      var gridOptionsCarreras_i = {
+        defaultColDef: {
+          width: 110,
+          resizable: true
+        },
+        rowSelection: 'single',
+        onSelectionChanged: onSelectionChangedInscriptos,
+        columnDefs: columnDefsCarreras_i
+      };
+
+      function onSelectionChangedInscriptos() {
+        var selectedRows = gridOptionsCarreras_i.api.getSelectedRows();
+        var selectedRowsString = '';
+        selectedRows.forEach( function(selectedRow, index) {
+          if (index!==0) {
+            selectedRowsString += ', ';
+          }
+          selectedRowsString += selectedRow.documento;
+          $quitarSeleccionado = selectedRow.documento;
+        });
+        //  document.querySelector('#selectedRows').innerHTML = selectedRowsString;
+
+      }
+
+
+
+      // lookup the container we want the Grid to use
+      var eGridDivCarreras_i = document.querySelector('#inscriptosGrid');
+
+      getCorredoresCarrera_i(function (err, result){
+        gridOptionsCarreras_i.api.setRowData(result);
+      });
+
+      new agGrid.Grid(eGridDivCarreras_i, gridOptionsCarreras_i);
+
+
+      //nuevo
+      function getCorredoresCarrera_i(callback){
+        $query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+$idCarrera_i;
+        sqlQuery(callback, $query);
+      }
+      //FIN TABLA INSCRIPTOS
+
+      //REFRESCAR TABLA INSCRIPTOS
+      function refrescarInscriptosGrid(){
+        getCorredoresCarrera_i(function (err, result){
+          gridOptionsCarreras_i.api.setRowData(result);
+
+        });
+
+      }
+
+      //FUNCION DE CONSULTAS A MYSQL
+      function sqlQuery(callback, $queryString){
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+          host     : 'localhost',
+          user     : 'root',
+          password : null,
+          database : 'bicisoft'
+        });
+        connection.connect(function(err) {
+          if(err){
+            console.log(err.code);
+            console.log(err.fatal);
+          }
+        });
+        console.log("performing query");
+        // Perform a query
+        connection.query($queryString, function(err, rows, fields) {
+          if(err){
+            console.log("An error ocurred performing the query.");
+            console.log(err);
+            return;
+          }
+          console.log("Query categorias succesfully executed");
+          callback(err, rows);
+        });
+        // Close the connection
+        connection.end(function(){
+          // The connection has been closed
+        });
+      }
+
+
+    </script>
+
+
+  </section>
+</template>
