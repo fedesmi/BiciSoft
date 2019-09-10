@@ -51,13 +51,39 @@
 
 
       function inscribirCarrera_i(){
+        //if carrera no empezada o terminada
+        var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+$idCarrera_i+" AND terminada=0 AND empezada = 0";
+        sqlQuery(function (err, result){
+          if (result[0].cuenta>0){
+            sqlQuery(function (err, result){
+              console.log("ERROR  "+err);
+              console.log("ERROR  "+result);
+              refrescarInscriptosGrid()
+            }, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+$idCarrera_i+", "+$agregarSeleccionado+", 0)");
+          }
+          else{
+            alert('La carrera esta empezada o terminada');
+          }
 
-        sqlQuery(function (err, result){refrescarInscriptosGrid()}, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+$idCarrera_i+", "+$agregarSeleccionado+", 0)");
+        }, sqlEmpezadoTerminado);
 
       }
-      function quitarCarrera_i(){
 
-        sqlQuery(function (err, result){ refrescarInscriptosGrid()}, "DELETE FROM carrera_corredores WHERE id_carrera="+$idCarrera_i+" AND id_corredor= "+$quitarSeleccionado);
+
+      function quitarCarrera_i(){
+        //if carrera no empezada o terminada
+        var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+$idCarrera_i+" AND terminada=0 AND empezada = 0";
+        sqlQuery(function (err, result){
+          if (result[0].cuenta>0){
+            sqlQuery(function (err, result){
+              console.log("ERROR  "+err);
+              refrescarInscriptosGrid()
+            }, "DELETE FROM carrera_corredores WHERE id_carrera="+$idCarrera_i+" AND id_corredor= "+$quitarSeleccionado);
+          }
+          else{
+            alert('La carrera esta empezada o terminada');
+          }
+        }, sqlEmpezadoTerminado);
 
       }
 
@@ -111,10 +137,9 @@
 
       //EMPIEZA configuracion TABLA CORREDORES
       var columnDefsCorredores = [
-      {headerName: "documento", field: "documento"},
-      {headerName: "nombre", field: "nombre"},
+      {headerName: "documento", field: "documento", sortable: true, filter: true},
       {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+      {headerName: "nombre", field: "nombre"}
       ];
 
       // let the grid know which columns and what data to use
@@ -125,8 +150,29 @@
         },
         rowSelection: 'single',
         onSelectionChanged: onSelectionChangedCorredores,
-        columnDefs: columnDefsCorredores
-        //rowData: rowData
+        columnDefs: columnDefsCorredores,
+        floatingFilter: true,
+        localeText: {
+          // for text filter
+          contains: 'contiene',
+          notContains: 'no contiene',
+          startsWith: 'empieza con',
+          endsWith: 'termina con',
+
+          // for number filter and text filter
+          filterOoo: 'filtrar...',
+          applyFilter: 'aplicar filtro...',
+          equals: 'igual',
+          notEquals: 'distinto',
+
+          // other
+          noRowsToShow: 'No hay registros para mostrar  ',
+          loadingOoo: 'Cargando...',
+
+          // filter conditions
+          andCondition: 'Y',
+          orCondition: 'O',
+        }
 
       };
 
@@ -162,13 +208,16 @@
       //FIN TABLA CORREDORES
 
 
+      function getIdiomaGrid(){
+        return
+      }
+
       //EMPIEZA configuracion TABLA INSCRIPTOS
       // specify the columns
       var columnDefsCarreras_i = [
       {headerName: "documento", field: "documento"},
       {headerName: "nombre", field: "nombre"},
-      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+      {headerName: "apellido", field: "apellido", sortable: true}
       ];
 
       // let the grid know which columns and what data to use
@@ -179,7 +228,28 @@
         },
         rowSelection: 'single',
         onSelectionChanged: onSelectionChangedInscriptos,
-        columnDefs: columnDefsCarreras_i
+        columnDefs: columnDefsCarreras_i,
+        localeText: {
+          // for text filter
+          contains: 'contiene',
+          notContains: 'no contiene',
+          startsWith: 'empieza con',
+          endsWith: 'termina con',
+
+          // for number filter and text filter
+          filterOoo: 'filtrar...',
+          applyFilter: 'aplicar filtro...',
+          equals: 'igual',
+          notEquals: 'distinto',
+
+          // other
+          noRowsToShow: 'No hay registros para mostrar',
+          loadingOoo: 'Cargando...',
+
+          // filter conditions
+          andCondition: 'Y',
+          orCondition: 'O',
+        }
       };
 
       function onSelectionChangedInscriptos() {
@@ -196,17 +266,9 @@
 
       }
 
-
-
-      // lookup the container we want the Grid to use
+    // lookup the container we want the Grid to use
       var eGridDivCarreras_i = document.querySelector('#inscriptosGrid');
-
-      getCorredoresCarrera_i(function (err, result){
-        gridOptionsCarreras_i.api.setRowData(result);
-      });
-
       new agGrid.Grid(eGridDivCarreras_i, gridOptionsCarreras_i);
-
 
       //nuevo
       function getCorredoresCarrera_i(callback){
@@ -218,10 +280,8 @@
       //REFRESCAR TABLA INSCRIPTOS
       function refrescarInscriptosGrid(){
         getCorredoresCarrera_i(function (err, result){
-          gridOptionsCarreras_i.api.setRowData(result);
-
+        gridOptionsCarreras_i.api.setRowData(result);
         });
-
       }
 
       //FUNCION DE CONSULTAS A MYSQL
@@ -239,16 +299,17 @@
             console.log(err.fatal);
           }
         });
-        console.log("performing query");
+        console.log("performing query ");
         // Perform a query
         connection.query($queryString, function(err, rows, fields) {
           if(err){
             console.log("An error ocurred performing the query.");
             console.log(err);
+            alert("operacion no permitida");
             return;
           }
-          console.log("Query categorias succesfully executed");
           callback(err, rows);
+
         });
         // Close the connection
         connection.end(function(){
