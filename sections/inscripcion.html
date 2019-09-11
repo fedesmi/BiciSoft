@@ -44,22 +44,22 @@
 
 
     <script type="text/javascript" charset="utf-8">
-      var $idCarrera_i;
-      var $carreraTerminada_i;
-      var $agregarSeleccionado;
-      var $quitarSeleccionado;
+      var idCarrera_i;
+      var carreraTerminada_i;
+      var agregarSeleccionado;
+      var quitarSeleccionado;
 
 
       function inscribirCarrera_i(){
         //if carrera no empezada o terminada
-        var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+$idCarrera_i+" AND terminada=0 AND empezada = 0";
+        var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idCarrera_i+" AND terminada=0 AND empezada = 0";
         sqlQuery(function (err, result){
           if (result[0].cuenta>0){
             sqlQuery(function (err, result){
               console.log("ERROR  "+err);
               console.log("ERROR  "+result);
               refrescarInscriptosGrid()
-            }, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+$idCarrera_i+", "+$agregarSeleccionado+", 0)");
+            }, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+idCarrera_i+", "+agregarSeleccionado+", 0)");
           }
           else{
             alert('La carrera esta empezada o terminada');
@@ -72,13 +72,13 @@
 
       function quitarCarrera_i(){
         //if carrera no empezada o terminada
-        var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+$idCarrera_i+" AND terminada=0 AND empezada = 0";
+        var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idCarrera_i+" AND terminada=0 AND empezada = 0";
         sqlQuery(function (err, result){
           if (result[0].cuenta>0){
             sqlQuery(function (err, result){
               console.log("ERROR  "+err);
               refrescarInscriptosGrid()
-            }, "DELETE FROM carrera_corredores WHERE id_carrera="+$idCarrera_i+" AND id_corredor= "+$quitarSeleccionado);
+            }, "DELETE FROM carrera_corredores WHERE id_carrera="+idCarrera_i+" AND id_corredor= "+quitarSeleccionado);
           }
           else{
             alert('La carrera esta empezada o terminada');
@@ -90,13 +90,13 @@
 
 
       //LISTA DESPLEGABLE DE CARRERAS
-      var $selectCarreras_i = $('#select-carreras_i').selectize({
+      var selectCarreras_i = $('#select-carreras_i').selectize({
         maxItems: 1,
         valueField: 'id',
         labelField: 'nombre',
         searchField: 'terminada',
         onChange:function(value){
-          $idCarrera_i = value;
+          idCarrera_i = value;
 
           //setup del boton inscripcion
           if (value>0){
@@ -117,7 +117,7 @@
 
       });
 
-      var selectizeCarreras_i = $selectCarreras_i[0].selectize;
+      var selectizeCarreras_i = selectCarreras_i[0].selectize;
 
 
       getCarreras_i(function (err, result){
@@ -126,8 +126,8 @@
       });
 
       function getCarreras_i(callback){
-        $query =  'SELECT * FROM carreras_view WHERE terminada = 0';
-        sqlQuery(callback, $query);
+        query =  'SELECT * FROM carreras_view WHERE terminada = 0';
+        sqlQuery(callback, query);
       }
       //FIN LISTA DESPLEGABLE Carreras
 
@@ -184,7 +184,7 @@
             selectedRowsString += ', ';
           }
           selectedRowsString += selectedRow.documento;
-          $agregarSeleccionado = selectedRow.documento;
+          agregarSeleccionado = selectedRow.documento;
         });
         //  document.querySelector('#selectedRows').innerHTML = selectedRowsString;
 
@@ -201,8 +201,8 @@
 
       //INSCRIPTOS
       function getRowsCorredores(callback){
-        $query =  'SELECT * FROM corredores_view';
-        sqlQuery(callback, $query);
+        query =  'SELECT * FROM corredores_view';
+        sqlQuery(callback, query);
 
       }
       //FIN TABLA CORREDORES
@@ -260,7 +260,7 @@
             selectedRowsString += ', ';
           }
           selectedRowsString += selectedRow.documento;
-          $quitarSeleccionado = selectedRow.documento;
+          quitarSeleccionado = selectedRow.documento;
         });
         //  document.querySelector('#selectedRows').innerHTML = selectedRowsString;
 
@@ -272,8 +272,8 @@
 
       //nuevo
       function getCorredoresCarrera_i(callback){
-        $query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+$idCarrera_i;
-        sqlQuery(callback, $query);
+        query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+idCarrera_i;
+        sqlQuery(callback, query);
       }
       //FIN TABLA INSCRIPTOS
 
@@ -285,7 +285,7 @@
       }
 
       //FUNCION DE CONSULTAS A MYSQL
-      function sqlQuery(callback, $queryString){
+      function sqlQuery(callback, queryString){
         var mysql = require('mysql');
         var connection = mysql.createConnection({
           host     : 'localhost',
@@ -301,7 +301,7 @@
         });
         console.log("performing query ");
         // Perform a query
-        connection.query($queryString, function(err, rows, fields) {
+        connection.query(queryString, function(err, rows, fields) {
           if(err){
             console.log("An error ocurred performing the query.");
             console.log(err);

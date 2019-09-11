@@ -32,11 +32,7 @@
           color: YELLOW;"
           id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="MARCAR"></td>
           <td>
-            <ul style="list-style-type:none; background: #2c3e50;color: #CCCCCC;  padding-left:5px; height: 80px;">
-              <li>#411 (13:06:02hs)</li>
-              <li>#411 (13:00:54hs)</li>
-              <li>#200 (12:58:20hs)</li>
-            </ul>
+            <div id="gridUltimosMarcados" style="padding-left:5px; height: 80px; width:120px;" class="ag-theme-balham"></div>
           </td>
         </tr>
 
@@ -45,14 +41,22 @@
       <div id="gridCorredoresCarreras" style="height: 300px;width:700px;" class="ag-theme-balham"></div>
 
       <script>
+
+        //VARIABLES
         //ID CARRERA SELECCIONADA
-        var $idCarreraCorrer;
+        var idCarreraCorrer;
         //CONSULTAS SQL
-        var $sqlCorredoresCarrera = 'SELECT * FROM carrera_corredor_view WHERE id_carrera=';
-        var $sqlCarrerasNoFinalizadas = 'SELECT * FROM carreras_no_finalizadas_view';
-        var $sqlInsertarMarca  = 'INSERT INTO carrera_marcas(id_carrera, id_corredor, marca) ';
-        //var $sqlUltimosMarcados =  'SELECT * FROM carrera_marcas where id_carrera = '++'  ORDER BY marca  DESC limit 3';
-        var $sql;
+        var sqlCorredoresCarrera = 'SELECT * FROM carrera_corredor_view WHERE id_carrera=';
+        var sqlCarrerasNoFinalizadas = 'SELECT * FROM carreras_no_finalizadas_view';
+        var sqlInsertarMarca  = 'INSERT INTO carrera_marcas(id_carrera, id_corredor, marca) ';
+        var sql;
+        var gridOptionsCarrerasCorredores;
+        //FIN VARIABLES
+
+        //INICIALIZACION
+        definirListaCarreras();
+        setupTablaCarrerasCorredores();
+        setupUltimosMarcados();
 
 
         //SETUP Y COMPORTAMIENTO BOTON EMPEZAR/TERMINAR
@@ -69,14 +73,14 @@
         function empezarCarrera(){
           //SI SE CERRO LA APLICACION, INICIA DESDE DONDE ESTABA LA CARRERA
           //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA//dependiendo el tipo de carrera
-          $sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+$idCarreraCorrer;
-          sqlQuery(function (err, result){}, $sql);
-          $sql='UPDATE carreras set empezada=1 where id ='+$idCarreraCorrer;
-          sqlQuery(function (err, result){}, $sql);
+          sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+idCarreraCorrer;
+          sqlQuery(function (err, result){}, sql);
+          sql='UPDATE carreras set empezada=1 where id ='+idCarreraCorrer;
+          sqlQuery(function (err, result){}, sql);
           //dependiendo el tipo de carreras
           document.getElementById("marcarField").disabled = false;
           document.getElementById("botonEmpezar").innerHTML = "Terminar";
-          //$('#select-carreras-correr')[0].selectize.disable();
+          //('#select-carreras-correr')[0].selectize.disable();
         }
         //FIN EMPEZAR CARRERA
 
@@ -84,32 +88,47 @@
         function terminarCarrera(){
           // MARCAR CARRERA TERMINADA (AVISAR QUE QUEDAN CORREDORES SIN FINALIZAR
           //Y SE TOMARAN EN CUENTA COMO DESCALIFICADOS).
-          $sql='UPDATE carreras set terminada=1 where id ='+$idCarreraCorrer;
+          sql='UPDATE carreras set terminada=1 where id ='+idCarreraCorrer;
           sqlQuery(function (err, result){
             document.getElementById("marcarField").disabled = true;
             document.getElementById("botonEmpezar").innerHTML ="Empezar";
             //limpia listas y tablas
-            $('#select-carreras-correr')[0].selectize.destroy();
+            ('#select-carreras-correr')[0].selectize.destroy();
             gridOptionsCarrerasCorredores.api.setRowData();
             definirListaCarreras();
 
-          }, $sql);
+          }, sql);
         }
         //FIN TERMINAR CARRERA
 
         //FUNCION MARCAR CORREDOR
         function manejarMarca(event){
           if (event.keyCode===13){
-            $numeroCorredor = document.getElementById("marcarField").value;
-            $sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) VALUES('+$idCarreraCorrer+', '+$numeroCorredor+', now())';
-            sqlQuery(function (err, result){}, $sql);
-            //sqlQuery(function (err, result){}, $sqlInsertarMarca);
-            document.getElementById("marcarField").value ="";
+            numeroCorredor = document.getElementById("marcarField").value;
+            //MARCAR TODOS LOS CORREDORES DE LA CARRERA
+            sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) VALUES('+idCarreraCorrer+', '+numeroCorredor+', now())';
+            sqlQuery(function (err, result){
+                //despues de insertar
+                calcularTiempos(numeroCorredor);
+                document.getElementById("marcarField").value ="";
+                //refrescar lista
+
+            }, sql);
+
           }
         }
         //FIN MARCAR CORREDOR
 
-        //
+        //VERRRRRRR
+        function calcularTiempos(numeroCorredor){
+            sql = "UPDATE carrera_corredores SET vueltas = vueltas +1 WHERE numero = "+numeroCorredor;
+            sqlQuery(function (err, result){
+                refrescarTablaCarrera();
+            }, sql);
+
+        }
+
+        //VERIFICAR SI LA CARRERA ESTA EN CURSO
         function verificarEmpezada(idPar){
           var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idPar+" AND empezada = 1 ";
           sqlQuery(function (err, result){
@@ -124,38 +143,34 @@
             }
           }, sqlEmpezadoTerminado);
         }
+        //FIN VERIFICAR SI LA CARRERA ESTA EN CURSO
 
-
-        //INICIALIZACION
         //SETUP DE LISTA DESPLEGABLE
-
-        definirListaCarreras();
-
-
         function definirListaCarreras(){
-          var $selectCarrerasCorrer = $('#select-carreras-correr').selectize({
+          var selectCarrerasCorrer = $('#select-carreras-correr').selectize({
             maxItems: 1,
             valueField: 'id',
             labelField: 'nombre',
             searchField: 'nombre',
             onChange:function(value){
               //console.log("funcionvalue"+value);
-              $idCarreraCorrer = value;
+              idCarreraCorrer = value;
               //se refrescan los datos de la tabla cuando cambia la seleccion en la lista
               refrescarTablaCarrera();
               verificarEmpezada(value);
             },
             create: false
           });
-          var selectizeCarrerasCorrer = $selectCarrerasCorrer[0].selectize;
+          var selectizeCarrerasCorrer = selectCarrerasCorrer[0].selectize;
           sqlQuery(function (err, result){
             selectizeCarrerasCorrer.addOption(result);
             selectizeCarrerasCorrer.refreshOptions();
-          }, $sqlCarrerasNoFinalizadas);
+          }, sqlCarrerasNoFinalizadas);
         }
         //FIN LISTA SETUP DESPLEGABLE
 
         //SETUP TABLA
+        function setupTablaCarrerasCorredores(){
         // specify the columns
         var columnDefsCarrerasCorredores = [
         {headerName: "Pos", field: "posicion", sortable: true, width:65},
@@ -169,7 +184,7 @@
         ];
 
         // let the grid know which columns and what data to use
-        var gridOptionsCarrerasCorredores = {
+        gridOptionsCarrerasCorredores = {
           defaultColDef: {
             resizable: false
           },
@@ -196,23 +211,75 @@
             andCondition: 'Y',
             orCondition: 'O',
           }
-
         };
-
         // lookup the container we want the Grid to use
         var eGridDivCarrerasCorredores = document.querySelector('#gridCorredoresCarreras');
         refrescarTablaCarrera();
         new agGrid.Grid(eGridDivCarrerasCorredores, gridOptionsCarrerasCorredores);
+      }
       //FIN SETUP TABLA
+
+      //SETUP TABLA
+      function setupUltimosMarcados(){
+      // specify the columns
+      var columnDefsCarrerasCorredores = [
+      {headerName: "Nro", field: "nro", width:20},
+      {headerName: "Hora", field: "hora", width:70}
+      ];
+      var rowDataUltimos = [
+         {nro: "1", hora: "10:22:25"},
+         {nro: "2", hora: "10:21:25"},
+         {nro: "3", hora: "10:20:25"}
+       ];
+
+      // let the grid know which columns and what data to use
+      gridOptionsUltimos = {
+        defaultColDef: {
+          resizable: false
+        },
+        rowData: rowDataUltimos,
+        columnDefs: columnDefsCarrerasCorredores,
+        headerHeight: 0,
+        suppressHorizontalScroll: true,
+        alwaysShowVerticalScroll: false,
+        rowHeight: 25,
+        localeText: {
+          // for text filter
+          contains: 'contiene',
+          notContains: 'no contiene',
+          startsWith: 'empieza con',
+          endsWith: 'termina con',
+
+          // for number filter and text filter
+          filterOoo: 'filtrar...',
+          applyFilter: 'aplicar filtro...',
+          equals: 'igual',
+          notEquals: 'distinto',
+
+          // other
+          noRowsToShow: 'No hay registros para mostrar  ',
+          loadingOoo: 'Cargando...',
+
+          // filter conditions
+          andCondition: 'Y',
+          orCondition: 'O',
+        }
+      };
+      // lookup the container we want the Grid to use
+      var eGridUltimos = document.querySelector('#gridUltimosMarcados');
+      new agGrid.Grid(eGridUltimos, gridOptionsUltimos);
+
+    }
+    //FIN TABLA ULTIMOS
 
       function refrescarTablaCarrera(){
         sqlQuery(function (err, result){
           gridOptionsCarrerasCorredores.api.setRowData(result);
-        }, $sqlCorredoresCarrera+$idCarreraCorrer);
+        }, sqlCorredoresCarrera+idCarreraCorrer);
       }
 
       //FUNCION DE CONSULTAS A MYSQL
-      function sqlQuery(callback, $queryString){
+      function sqlQuery(callback, queryString){
         var mysql = require('mysql');
         var connection = mysql.createConnection({
           host     : 'localhost',
@@ -228,7 +295,7 @@
         });
         console.log("performing query");
         // Perform a query
-        connection.query($queryString, function(err, rows, fields) {
+        connection.query(queryString, function(err, rows, fields) {
           if(err){
             console.log("An error ocurred performing the query.");
             console.log(err);
