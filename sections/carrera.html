@@ -32,7 +32,12 @@
           color: YELLOW;"
           id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="MARCAR"></td>
           <td>
-            <div id="gridUltimosMarcados" style="padding-left:5px; height: 80px; width:120px;" class="ag-theme-balham"></div>
+            <!--<div id="gridUltimosMarcados" style="padding-left:5px; height: 80px; width:120px;" class="ag-theme-balham"></div>-->
+            <ol>
+              <li id="li1"></li>
+              <li id="li2"></li>
+              <li id="li3"></li>
+            </ol>
           </td>
         </tr>
 
@@ -51,6 +56,11 @@
         var sqlInsertarMarca  = 'INSERT INTO carrera_marcas(id_carrera, id_corredor, marca) ';
         var sql;
         var gridOptionsCarrerasCorredores;
+        var sqlMarca;
+        var ultimasMarcas = [];
+        ultimasMarcas.push('-');
+        ultimasMarcas.push('-');
+        ultimasMarcas.push('-');
         //FIN VARIABLES
 
         //INICIALIZACION
@@ -103,28 +113,56 @@
 
         //FUNCION MARCAR CORREDOR
         function manejarMarca(event){
-          if (event.keyCode===13){
+          if (event.keyCode===13 && document.getElementById("marcarField").value!=="") {
+            //document.getElementById("marcarField").disabled =true;
             numeroCorredor = document.getElementById("marcarField").value;
             //MARCAR TODOS LOS CORREDORES DE LA CARRERA
-            sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) VALUES('+idCarreraCorrer+', '+numeroCorredor+', now())';
+            sqlMarca='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+idCarreraCorrer+', cc.numero, now() FROM carrera_corredores as cc WHERE cc.numero = '+numeroCorredor;
             sqlQuery(function (err, result){
-                //despues de insertar
+              if (result.affectedRows>0){
                 calcularTiempos(numeroCorredor);
-                document.getElementById("marcarField").value ="";
-                //refrescar lista
-
-            }, sql);
-
+                ultimasMarcas.push('Nro = '+numeroCorredor);
+              }else{
+                //alert('no existe corredor');
+                ultimasMarcas.push('no existe');
+              }
+              ultimasMarcas.shift();
+              actualizarListaUlitmasMarcas();
+            }, sqlMarca);
+            document.getElementById("marcarField").value ="";
           }
         }
         //FIN MARCAR CORREDOR
 
-        //VERRRRRRR
+        function actualizarListaUlitmasMarcas(){
+            document.getElementById("li1").innerHTML = ultimasMarcas[0];
+            document.getElementById("li2").innerHTML = ultimasMarcas[1];
+            document.getElementById("li3").innerHTML = ultimasMarcas[2];
+        }
+
+        //CALCULAR TIEMPOS Y POSICIONES
         function calcularTiempos(numeroCorredor){
-            sql = "UPDATE carrera_corredores SET vueltas = vueltas +1 WHERE numero = "+numeroCorredor;
-            sqlQuery(function (err, result){
+          var sql = "UPDATE carrera_corredores SET vueltas = vueltas +1, " +
+                    "tiempo = (SELECT TIMEDIFF((SELECT marca as m1 FROM `carrera_marcas` where id_carrera= "+idCarreraCorrer+
+                                                  " and numero_corredor = "+numeroCorredor+" order by marca desc limit 1), "+
+                                              "(SELECT marca as m1 FROM `carrera_marcas` where id_carrera= "+idCarreraCorrer+
+                                              " and numero_corredor = "+numeroCorredor+" order by marca ASC limit 1))) "+
+                    " WHERE id_carrera = "+idCarreraCorrer+" AND numero = "+numeroCorredor;
+
+
+          //console.log(sql);
+          sqlQuery(function (err, result){
+            if(!err){
+              /*sql = "UPDATE carrera_corredores SET posicion = (select puesto from (SELECT (@row_number:=@row_number + 1) as puesto, "+
+                " numero FROM carrera_corredores, (SELECT @row_number:=0) as t where id_carrera="+idCarreraCorrer+
+                " ORDER BY `vueltas` DESC, tiempo) as t1 where numero="+numeroCorredor+") "+
+                " WHERE id_carrera = "+idCarreraCorrer+" AND numero = "+numeroCorredor;
+                sqlQuery(function (err, result){
+                  //refrescarTablaCarrera();
+                }, sql);*/
                 refrescarTablaCarrera();
-            }, sql);
+            }
+          }, sql);
 
         }
 
@@ -171,146 +209,157 @@
 
         //SETUP TABLA
         function setupTablaCarrerasCorredores(){
-        // specify the columns
-        var columnDefsCarrerasCorredores = [
-        {headerName: "Pos", field: "posicion", sortable: true, width:65},
-        {headerName: "Global", field: "global", sortable: true, width:75},
-        {headerName: "#", field: "numero", filter: true, width:50},
-        {headerName: "Nombre", field: "nombre", width:100},
-        {headerName: "Apellido", field: "apellido", width:110},
-        {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
-        {headerName: "Tiempo", field: "tiempo", width:80},
-        {headerName: "Vueltas", field: "vueltas", width:80}
-        ];
+          // specify the columns
+          var columnDefsCarrerasCorredores = [
+          /*{headerName: "Pos", field: "posicion", sortable: true, width:65},
+          {headerName: "Global", field: "global", sortable: true, width:75},*/
+          {headerName: "#", field: "numero", filter: true, width:50},
+          {headerName: "Nombre", field: "nombre", width:100},
+          {headerName: "Apellido", field: "apellido", width:110},
+          {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
+          {headerName: "Tiempo", field: "tiempo", width:80},
+          {headerName: "Vueltas", field: "vueltas", width:80}
+          ];
 
-        // let the grid know which columns and what data to use
-        gridOptionsCarrerasCorredores = {
-          defaultColDef: {
-            resizable: false
-          },
-          columnDefs: columnDefsCarrerasCorredores,
-          floatingFilter: false,
-          localeText: {
-            // for text filter
-            contains: 'contiene',
-            notContains: 'no contiene',
-            startsWith: 'empieza con',
-            endsWith: 'termina con',
+          // let the grid know which columns and what data to use
+          gridOptionsCarrerasCorredores = {
+            defaultColDef: {
+              resizable: false
+            },
+            columnDefs: columnDefsCarrerasCorredores,
+            floatingFilter: false,
+            localeText: {
+              // for text filter
+              contains: 'contiene',
+              notContains: 'no contiene',
+              startsWith: 'empieza con',
+              endsWith: 'termina con',
 
-            // for number filter and text filter
-            filterOoo: 'filtrar...',
-            applyFilter: 'aplicar filtro...',
-            equals: 'igual',
-            notEquals: 'distinto',
+              // for number filter and text filter
+              filterOoo: 'filtrar...',
+              applyFilter: 'aplicar filtro...',
+              equals: 'igual',
+              notEquals: 'distinto',
 
-            // other
-            noRowsToShow: 'No hay registros para mostrar  ',
-            loadingOoo: 'Cargando...',
+              // other
+              noRowsToShow: 'No hay registros para mostrar  ',
+              loadingOoo: 'Cargando...',
 
-            // filter conditions
-            andCondition: 'Y',
-            orCondition: 'O',
-          }
-        };
-        // lookup the container we want the Grid to use
-        var eGridDivCarrerasCorredores = document.querySelector('#gridCorredoresCarreras');
-        refrescarTablaCarrera();
-        new agGrid.Grid(eGridDivCarrerasCorredores, gridOptionsCarrerasCorredores);
-      }
-      //FIN SETUP TABLA
-
-      //SETUP TABLA
-      function setupUltimosMarcados(){
-      // specify the columns
-      var columnDefsCarrerasCorredores = [
-      {headerName: "Nro", field: "nro", width:20},
-      {headerName: "Hora", field: "hora", width:70}
-      ];
-      var rowDataUltimos = [
-         {nro: "1", hora: "10:22:25"},
-         {nro: "2", hora: "10:21:25"},
-         {nro: "3", hora: "10:20:25"}
-       ];
-
-      // let the grid know which columns and what data to use
-      gridOptionsUltimos = {
-        defaultColDef: {
-          resizable: false
-        },
-        rowData: rowDataUltimos,
-        columnDefs: columnDefsCarrerasCorredores,
-        headerHeight: 0,
-        suppressHorizontalScroll: true,
-        alwaysShowVerticalScroll: false,
-        rowHeight: 25,
-        localeText: {
-          // for text filter
-          contains: 'contiene',
-          notContains: 'no contiene',
-          startsWith: 'empieza con',
-          endsWith: 'termina con',
-
-          // for number filter and text filter
-          filterOoo: 'filtrar...',
-          applyFilter: 'aplicar filtro...',
-          equals: 'igual',
-          notEquals: 'distinto',
-
-          // other
-          noRowsToShow: 'No hay registros para mostrar  ',
-          loadingOoo: 'Cargando...',
-
-          // filter conditions
-          andCondition: 'Y',
-          orCondition: 'O',
+              // filter conditions
+              andCondition: 'Y',
+              orCondition: 'O',
+            }
+          };
+          // lookup the container we want the Grid to use
+          var eGridDivCarrerasCorredores = document.querySelector('#gridCorredoresCarreras');
+          refrescarTablaCarrera();
+          new agGrid.Grid(eGridDivCarrerasCorredores, gridOptionsCarrerasCorredores);
         }
-      };
-      // lookup the container we want the Grid to use
-      var eGridUltimos = document.querySelector('#gridUltimosMarcados');
-      new agGrid.Grid(eGridUltimos, gridOptionsUltimos);
+        //FIN SETUP TABLA
 
-    }
-    //FIN TABLA ULTIMOS
+        //SETUP TABLA
+        function setupUltimosMarcados(){
+          // specify the columns
+          var columnDefsCarrerasCorredores = [
+          {headerName: "Nro", field: "nro", width:20},
+          {headerName: "Hora", field: "hora", width:70}
+          ];
+          var rowDataUltimos = [
+          {nro: "1", hora: "10:22:25"},
+          {nro: "2", hora: "10:21:25"},
+          {nro: "3", hora: "10:20:25"}
+          ];
 
-      function refrescarTablaCarrera(){
-        sqlQuery(function (err, result){
-          gridOptionsCarrerasCorredores.api.setRowData(result);
-        }, sqlCorredoresCarrera+idCarreraCorrer);
-      }
+          // let the grid know which columns and what data to use
+          gridOptionsUltimos = {
+            defaultColDef: {
+              resizable: false
+            },
+            rowData: rowDataUltimos,
+            columnDefs: columnDefsCarrerasCorredores,
+            headerHeight: 0,
+            suppressHorizontalScroll: true,
+            alwaysShowVerticalScroll: false,
+            rowHeight: 25,
+            localeText: {
+              // for text filter
+              contains: 'contiene',
+              notContains: 'no contiene',
+              startsWith: 'empieza con',
+              endsWith: 'termina con',
 
-      //FUNCION DE CONSULTAS A MYSQL
-      function sqlQuery(callback, queryString){
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'bicisoft'
-        });
-        connection.connect(function(err) {
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
-        console.log("performing query");
-        // Perform a query
-        connection.query(queryString, function(err, rows, fields) {
-          if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
-            return;
-          }
-          console.log("Query categorias succesfully executed");
-          callback(err, rows);
-        });
-        // Close the connection
-        connection.end(function(){
-          // The connection has been closed
-        });
-      }
+              // for number filter and text filter
+              filterOoo: 'filtrar...',
+              applyFilter: 'aplicar filtro...',
+              equals: 'igual',
+              notEquals: 'distinto',
 
-    </script>
+              // other
+              noRowsToShow: 'No hay registros para mostrar  ',
+              loadingOoo: 'Cargando...',
 
-  </section>
-</template>
+              // filter conditions
+              andCondition: 'Y',
+              orCondition: 'O',
+            }
+          };
+          // lookup the container we want the Grid to use
+          var eGridUltimos = document.querySelector('#gridUltimosMarcados');
+          new agGrid.Grid(eGridUltimos, gridOptionsUltimos);
+
+        }
+        //FIN TABLA ULTIMOS
+
+        function refrescarTablaCarrera(){
+          sqlQuery(function (err, result){
+            gridOptionsCarrerasCorredores.api.setRowData(result);
+          }, sqlCorredoresCarrera+idCarreraCorrer);
+        }
+
+        //FUNCION DE CONSULTAS A MYSQL
+        function sqlQuery(callback, queryString){
+          var mysql = require('mysql');
+          var connection = mysql.createConnection({
+            host     : 'localhost',
+            user     : 'root',
+            password : null,
+            database : 'bicisoft'
+          });
+
+          connection.connect(function(err) {
+            if(err){
+              console.log(err.code);
+              console.log(err.fatal);
+            }
+          });
+          console.log("performing query");
+          // Perform a query
+
+          connection.query(queryString, function(err, rows, fields) {
+            if(err){
+
+              if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062)
+              {
+                  //alert('REGISTRO DUPLICADO');
+              }
+              else{
+                console.log("OCURRIO UN ERROR SQL.");
+                console.log(err);
+              }
+              return;
+            }
+            callback(err, rows);
+          });
+          // Close the connection
+          connection.end(function(){
+            // The connection has been closed
+          });
+
+
+
+        }
+
+      </script>
+
+    </section>
+  </template>
