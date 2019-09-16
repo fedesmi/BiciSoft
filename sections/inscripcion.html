@@ -15,6 +15,7 @@
           <select id="select-carreras_i"  style="width:250px;"  placeholder="Elegir Carrera..."></select>
         </td>
         <td>
+          <input id="nro-corredor" type="number" step="1" class="input-base" style="width: 70px;" name="background" >
           <button class="boton" onclick="inscribirCarrera_i()" disabled=true;  id="botonInscribir_i"  >Inscribir</button>
           <button class="boton" onclick="quitarCarrera_i()" disabled=true;  id="botonQuitar_i"  >Quitar</button>
         </td>
@@ -29,14 +30,14 @@
           <div class="test-header">
             CORREDORES
           </div>
-          <div id="inscripcionCorredoresGrid"  style="height:330px; width:320px;" class="ag-theme-balham"></div>
+          <div id="inscripcionCorredoresGrid"  style="height:330px; width:280px;" class="ag-theme-balham"></div>
         </td>
         <td>
           <div class="test-header">
             INSCRIPTOS
             <span id="selectedRows"></span>
           </div>
-          <div id="inscriptosGrid" disabled style="height:330px; width:320px;" class="ag-theme-balham"></div>
+          <div id="inscriptosGrid" disabled style="height:330px; width:360px;" class="ag-theme-balham"></div>
         </td>
       </tr>
     </table>
@@ -48,25 +49,29 @@
       var carreraTerminada_i;
       var agregarSeleccionado;
       var quitarSeleccionado;
+      var numeroCorredor_i;
 
 
       function inscribirCarrera_i(){
-        //if carrera no empezada o terminada
-        var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idCarrera_i+" AND terminada=0 AND empezada = 0";
-        sqlQuery(function (err, result){
-          if (result[0].cuenta>0){
-            sqlQuery(function (err, result){
-              console.log("ERROR  "+err);
-              console.log("ERROR  "+result);
-              refrescarInscriptosGrid()
-            }, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+idCarrera_i+", "+agregarSeleccionado+", 0)");
-          }
-          else{
-            alert('La carrera esta empezada o terminada');
-          }
+        if(document.getElementById("nro-corredor").value>0){
+          numeroCorredor_i = document.getElementById("nro-corredor").value;
+          //if carrera no empezada o terminada
+          var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idCarrera_i+" AND terminada=0 AND empezada = 0";
+          sqlQuery(function (err, result){
+            if (result[0].cuenta>0){
+              sqlQuery(function (err, result){
+                refrescarInscriptosGrid()
+              }, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+idCarrera_i+", "+agregarSeleccionado+", "+numeroCorredor_i+" )");
+            }
+            else{
+              alert('La carrera esta empezada o terminada');
+            }
 
-        }, sqlEmpezadoTerminado);
-
+          }, sqlEmpezadoTerminado);
+        }
+        else{
+            alert('Debe ingresar el campo de numero de corredor');
+        }
       }
 
 
@@ -215,6 +220,7 @@
       //EMPIEZA configuracion TABLA INSCRIPTOS
       // specify the columns
       var columnDefsCarreras_i = [
+      {headerName: "Pechera", field: "numero"},
       {headerName: "documento", field: "documento"},
       {headerName: "nombre", field: "nombre"},
       {headerName: "apellido", field: "apellido", sortable: true}
@@ -266,7 +272,7 @@
 
       }
 
-    // lookup the container we want the Grid to use
+      // lookup the container we want the Grid to use
       var eGridDivCarreras_i = document.querySelector('#inscriptosGrid');
       new agGrid.Grid(eGridDivCarreras_i, gridOptionsCarreras_i);
 
@@ -280,46 +286,14 @@
       //REFRESCAR TABLA INSCRIPTOS
       function refrescarInscriptosGrid(){
         getCorredoresCarrera_i(function (err, result){
-        gridOptionsCarreras_i.api.setRowData(result);
+          gridOptionsCarreras_i.api.setRowData(result);
         });
       }
 
-      //FUNCION DE CONSULTAS A MYSQL
-    /*  function sqlQuery(callback, queryString){
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'bicisoft'
-        });
-        connection.connect(function(err) {
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
-        console.log("performing query ");
-        // Perform a query
-        connection.query(queryString, function(err, rows, fields) {
-          if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
-            alert("operacion no permitida");
-            return;
-          }
-          callback(err, rows);
-
-        });
-        // Close the connection
-        connection.end(function(){
-          // The connection has been closed
-        });
-      }*/
 
 
-    </script>
+</script>
 
 
-  </section>
+</section>
 </template>

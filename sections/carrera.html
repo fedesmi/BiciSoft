@@ -84,11 +84,13 @@
           //SI SE CERRO LA APLICACION, INICIA DESDE DONDE ESTABA LA CARRERA
           //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA//dependiendo el tipo de carrera
           sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+idCarreraCorrer;
-          sqlQuery(function (err, result){}, sql);
+          sqlQuery(function (err, result){
+            document.getElementById("marcarField").disabled = false;
+            document.getElementById("marcarField").focus();
+          }, sql);
           sql='UPDATE carreras set empezada=1 where id ='+idCarreraCorrer;
-          sqlQuery(function (err, result){}, sql);
+          sqlQuery(function (err, result){ }, sql);
           //dependiendo el tipo de carreras
-          document.getElementById("marcarField").disabled = false;
           document.getElementById("botonEmpezar").innerHTML = "Terminar";
           //('#select-carreras-correr')[0].selectize.disable();
         }
@@ -117,7 +119,7 @@
             //document.getElementById("marcarField").disabled =true;
             numeroCorredor = document.getElementById("marcarField").value;
             //MARCAR TODOS LOS CORREDORES DE LA CARRERA
-            sqlMarca='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+idCarreraCorrer+', cc.numero, now() FROM carrera_corredores as cc WHERE cc.numero = '+numeroCorredor;
+            sqlMarca='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+idCarreraCorrer+', cc.numero, now() FROM carrera_corredores as cc WHERE cc.id_carrera='+idCarreraCorrer+'  AND cc.numero = '+numeroCorredor;
             sqlQuery(function (err, result){
               if (result.affectedRows>0){
                 calcularTiempos(numeroCorredor);
@@ -153,13 +155,6 @@
           //console.log(sql);
           sqlQuery(function (err, result){
             if(!err){
-              /*sql = "UPDATE carrera_corredores SET posicion = (select puesto from (SELECT (@row_number:=@row_number + 1) as puesto, "+
-                " numero FROM carrera_corredores, (SELECT @row_number:=0) as t where id_carrera="+idCarreraCorrer+
-                " ORDER BY `vueltas` DESC, tiempo) as t1 where numero="+numeroCorredor+") "+
-                " WHERE id_carrera = "+idCarreraCorrer+" AND numero = "+numeroCorredor;
-                sqlQuery(function (err, result){
-                  //refrescarTablaCarrera();
-                }, sql);*/
                 refrescarTablaCarrera();
             }
           }, sql);
@@ -213,9 +208,10 @@
           var columnDefsCarrerasCorredores = [
           /*{headerName: "Pos", field: "posicion", sortable: true, width:65},
           {headerName: "Global", field: "global", sortable: true, width:75},*/
-          {headerName: "#", field: "numero", filter: true, width:50},
+          {lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
           {headerName: "Nombre", field: "nombre", width:100},
           {headerName: "Apellido", field: "apellido", width:110},
+          {headerName: "Pechera", field: "numero", filter: true, width:90},
           {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
           {headerName: "Tiempo", field: "tiempo", width:80},
           {headerName: "Vueltas", field: "vueltas", width:80}
@@ -338,14 +334,14 @@
           connection.query(queryString, function(err, rows, fields) {
             if(err){
 
-              if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062)
-              {
-                  //alert('REGISTRO DUPLICADO');
+              if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+              console.log('REGISTRO DUPLICADO');
               }
               else{
                 console.log("OCURRIO UN ERROR SQL.");
                 console.log(err);
               }
+
               return;
             }
             callback(err, rows);

@@ -108,6 +108,15 @@ a {
   width: 320px;
   height: 2em;
 }
+
+.input-base {
+  background: #2c3e50;
+  color: #CCCCCC;
+  border: none;
+  text-align: center;
+  height: 2em;
+}
+
 .pform {
   display:flex;
   flex-direction: row;
