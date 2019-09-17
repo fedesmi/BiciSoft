@@ -32,11 +32,10 @@
           color: YELLOW;"
           id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="MARCAR"></td>
           <td>
-            <!--<div id="gridUltimosMarcados" style="padding-left:5px; height: 80px; width:120px;" class="ag-theme-balham"></div>-->
             <ol>
-              <li id="li1"></li>
-              <li id="li2"></li>
-              <li id="li3"></li>
+              <li class="liultimos" id="li1"></li>
+              <li class="liultimos" id="li2"></li>
+              <li class="liultimos" id="li3"></li>
             </ol>
           </td>
         </tr>
@@ -123,10 +122,10 @@
             sqlQuery(function (err, result){
               if (result.affectedRows>0){
                 calcularTiempos(numeroCorredor);
-                ultimasMarcas.push('Nro = '+numeroCorredor);
+                ultimasMarcas.push('Marca: '+numeroCorredor);
               }else{
                 //alert('no existe corredor');
-                ultimasMarcas.push('no existe');
+                ultimasMarcas.push('inexistente');
               }
               ultimasMarcas.shift();
               actualizarListaUlitmasMarcas();
@@ -137,25 +136,37 @@
         //FIN MARCAR CORREDOR
 
         function actualizarListaUlitmasMarcas(){
-            document.getElementById("li1").innerHTML = ultimasMarcas[0];
-            document.getElementById("li2").innerHTML = ultimasMarcas[1];
-            document.getElementById("li3").innerHTML = ultimasMarcas[2];
+          document.getElementById("li1").innerHTML = ultimasMarcas[0];
+          document.getElementById("li2").innerHTML = ultimasMarcas[1];
+          document.getElementById("li3").innerHTML = ultimasMarcas[2];
         }
 
         //CALCULAR TIEMPOS Y POSICIONES
         function calcularTiempos(numeroCorredor){
           var sql = "UPDATE carrera_corredores SET vueltas = vueltas +1, " +
-                    "tiempo = (SELECT TIMEDIFF((SELECT marca as m1 FROM `carrera_marcas` where id_carrera= "+idCarreraCorrer+
-                                                  " and numero_corredor = "+numeroCorredor+" order by marca desc limit 1), "+
-                                              "(SELECT marca as m1 FROM `carrera_marcas` where id_carrera= "+idCarreraCorrer+
-                                              " and numero_corredor = "+numeroCorredor+" order by marca ASC limit 1))) "+
-                    " WHERE id_carrera = "+idCarreraCorrer+" AND numero = "+numeroCorredor;
+          "tiempo = (SELECT TIMEDIFF((SELECT marca as m1 FROM `carrera_marcas` where id_carrera= "+idCarreraCorrer+
+          " and numero_corredor = "+numeroCorredor+" order by marca desc limit 1), "+
+          "(SELECT marca as m1 FROM `carrera_marcas` where id_carrera= "+idCarreraCorrer+
+          " and numero_corredor = "+numeroCorredor+" order by marca ASC limit 1))) "+
+          " WHERE id_carrera = "+idCarreraCorrer+" AND numero = "+numeroCorredor;
 
 
           //console.log(sql);
           sqlQuery(function (err, result){
             if(!err){
+              //define posiciones
+              var sql = "UPDATE carrera_corredores AS cc "+
+              "JOIN "+
+              "(SELECT @rownum:=@rownum+1 rownum, id_carrera, id_corredor "+
+              "FROM carrera_corredores caco "+
+              "CROSS JOIN (select @rownum := 0) rn "+
+              "WHERE id_carrera= "+idCarreraCorrer+" "+
+              "order by vueltas Desc, tiempo "+
+              ") AS r ON (cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) " +
+              "SET cc.posicion = r.rownum";
+              sqlQuery(function (err, result){
                 refrescarTablaCarrera();
+              }, sql);
             }
           }, sql);
 
@@ -335,7 +346,7 @@
             if(err){
 
               if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
-              console.log('REGISTRO DUPLICADO');
+                console.log('REGISTRO DUPLICADO');
               }
               else{
                 console.log("OCURRIO UN ERROR SQL.");

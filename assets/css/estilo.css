@@ -117,6 +117,12 @@ a {
   height: 2em;
 }
 
+.liultimos {
+  background: orange;
+  color: #2D2D30;
+  padding-left: 10px;
+}
+
 .pform {
   display:flex;
   flex-direction: row;
