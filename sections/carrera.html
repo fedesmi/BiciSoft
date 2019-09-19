@@ -151,11 +151,11 @@
           " WHERE id_carrera = "+idCarreraCorrer+" AND numero = "+numeroCorredor;
 
 
-          //console.log(sql);
+          //SETEAR LA POSICION
           sqlQuery(function (err, result){
             if(!err){
               //define posiciones
-              var sql = "UPDATE carrera_corredores AS cc "+
+            /*var sql = "UPDATE carrera_corredores AS cc "+
               "JOIN "+
               "(SELECT @rownum:=@rownum+1 rownum, id_carrera, id_corredor "+
               "FROM carrera_corredores caco "+
@@ -163,7 +163,22 @@
               "WHERE id_carrera= "+idCarreraCorrer+" "+
               "order by vueltas Desc, tiempo "+
               ") AS r ON (cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) " +
-              "SET cc.posicion = r.rownum";
+              "SET cc.posicion = r.rownum";*/
+
+
+              //DETERMINA LAS POSICIONES GLOBALES Y DE CADA CATEGORIA
+              var sql = "UPDATE carrera_corredores AS cc "+
+                        "JOIN( SELECT id_carrera, documento as id_corredor, "+
+                        "RANK() OVER( ORDER BY vueltas DESC , tiempo ) rank, "+
+                        "RANK() OVER ( PARTITION BY id_categoria ORDER BY posicion ASC ) rankCat "+
+                        "FROM carrera_corredor_view WHERE id_carrera = "+idCarreraCorrer+") AS r ON "+
+                          "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
+                        "SET cc.global = r.rank, cc.posicion = r.rankCat";
+
+              console.log(sql);
+              /*old
+              UPDATE carrera_corredores AS cc JOIN (SELECT @rownum:=@rownum+1 rownum, id_carrera, id_corredor FROM carrera_corredores caco CROSS JOIN (select @rownum := 0) rn WHERE id_carrera= 1 order by vueltas Desc, tiempo ) AS r ON (cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) SET cc.posicion = r.rownum
+              */
               sqlQuery(function (err, result){
                 refrescarTablaCarrera();
               }, sql);
@@ -217,9 +232,9 @@
         function setupTablaCarrerasCorredores(){
           // specify the columns
           var columnDefsCarrerasCorredores = [
-          /*{headerName: "Pos", field: "posicion", sortable: true, width:65},
-          {headerName: "Global", field: "global", sortable: true, width:75},*/
-          {lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
+          {headerName: "Global", field: "global", sortable: true, width:75},
+          {headerName: "Pos", field: "posicion", sortable: true, width:65},
+          //{lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
           {headerName: "Nombre", field: "nombre", width:100},
           {headerName: "Apellido", field: "apellido", width:110},
           {headerName: "Pechera", field: "numero", filter: true, width:90},
