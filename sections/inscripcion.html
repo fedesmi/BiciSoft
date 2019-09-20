@@ -101,23 +101,22 @@
         labelField: 'nombre',
         searchField: 'terminada',
         onChange:function(value){
-          idCarrera_i = value;
+                  idCarrera_i = value;
+                  //setup del boton inscripcion
+                  if (value>0){
+                    document.getElementById("botonInscribir_i").disabled = false;
+                    document.getElementById("botonQuitar_i").disabled = false;
 
-          //setup del boton inscripcion
-          if (value>0){
-            document.getElementById("botonInscribir_i").disabled = false;
-            document.getElementById("botonQuitar_i").disabled = false;
+                  }else{
+                    document.getElementById("botonInscribir_i").disabled = true;
+                    document.getElementById("botonQuitar_i").disabled = true;
+                  }
 
-          }else{
-            document.getElementById("botonInscribir_i").disabled = true;
-            document.getElementById("botonQuitar_i").disabled = true;
-          }
+                  refrescarInscriptosGrid();
 
-          refrescarInscriptosGrid();
-
-          //se pone la fecha
-          //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
-        },
+                  //se pone la fecha
+                  //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
+                },
         create: false
 
       });
@@ -135,10 +134,6 @@
         sqlQuery(callback, query);
       }
       //FIN LISTA DESPLEGABLE Carreras
-
-
-
-
 
       //EMPIEZA configuracion TABLA CORREDORES
       var columnDefsCorredores = [
@@ -213,9 +208,9 @@
       //FIN TABLA CORREDORES
 
 
-      function getIdiomaGrid(){
+    /*  function getIdiomaGrid(){
         return
-      }
+      }*/
 
       //EMPIEZA configuracion TABLA INSCRIPTOS
       // specify the columns

@@ -33,9 +33,9 @@
           id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="MARCAR"></td>
           <td>
             <ol>
-              <li class="liultimos" id="li1"></li>
-              <li class="liultimos" id="li2"></li>
               <li class="liultimos" id="li3"></li>
+              <li class="liultimos" id="li2"></li>
+              <li class="liultimos" id="li1"></li>
             </ol>
           </td>
         </tr>
@@ -57,15 +57,15 @@
         var gridOptionsCarrerasCorredores;
         var sqlMarca;
         var ultimasMarcas = [];
-        ultimasMarcas.push('-');
-        ultimasMarcas.push('-');
-        ultimasMarcas.push('-');
+        ultimasMarcas.push('---');
+        ultimasMarcas.push('---');
+        ultimasMarcas.push('---');
         //FIN VARIABLES
 
         //INICIALIZACION
         definirListaCarreras();
         setupTablaCarrerasCorredores();
-        setupUltimosMarcados();
+        //setupUltimosMarcados();
 
 
         //SETUP Y COMPORTAMIENTO BOTON EMPEZAR/TERMINAR
@@ -84,14 +84,15 @@
           //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA//dependiendo el tipo de carrera
           sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+idCarreraCorrer;
           sqlQuery(function (err, result){
-            document.getElementById("marcarField").disabled = false;
-            document.getElementById("marcarField").focus();
+
+            sql='UPDATE carreras set empezada=1 where id ='+idCarreraCorrer;
+            sqlQuery(function (err, result){
+              document.getElementById("botonEmpezar").innerHTML = "Terminar";
+              document.getElementById("marcarField").disabled = false;
+              document.getElementById("marcarField").focus();
+            }, sql);
           }, sql);
-          sql='UPDATE carreras set empezada=1 where id ='+idCarreraCorrer;
-          sqlQuery(function (err, result){ }, sql);
-          //dependiendo el tipo de carreras
-          document.getElementById("botonEmpezar").innerHTML = "Terminar";
-          //('#select-carreras-correr')[0].selectize.disable();
+
         }
         //FIN EMPEZAR CARRERA
 
@@ -170,7 +171,7 @@
               var sql = "UPDATE carrera_corredores AS cc "+
                         "JOIN( SELECT id_carrera, documento as id_corredor, "+
                         "RANK() OVER( ORDER BY vueltas DESC , tiempo ) rank, "+
-                        "RANK() OVER ( PARTITION BY id_categoria ORDER BY posicion ASC ) rankCat "+
+                        "RANK() OVER ( PARTITION BY id_categoria ORDER BY global ASC ) rankCat "+
                         "FROM carrera_corredor_view WHERE id_carrera = "+idCarreraCorrer+") AS r ON "+
                           "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
                         "SET cc.global = r.rank, cc.posicion = r.rankCat";
@@ -232,7 +233,7 @@
         function setupTablaCarrerasCorredores(){
           // specify the columns
           var columnDefsCarrerasCorredores = [
-          {headerName: "Global", field: "global", sortable: true, width:75},
+          {headerName: "General", field: "global", sortable: true, width:75},
           {headerName: "Pos", field: "posicion", sortable: true, width:65},
           //{lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
           {headerName: "Nombre", field: "nombre", width:100},
@@ -277,60 +278,6 @@
           refrescarTablaCarrera();
           new agGrid.Grid(eGridDivCarrerasCorredores, gridOptionsCarrerasCorredores);
         }
-        //FIN SETUP TABLA
-
-        //SETUP TABLA
-        function setupUltimosMarcados(){
-          // specify the columns
-          var columnDefsCarrerasCorredores = [
-          {headerName: "Nro", field: "nro", width:20},
-          {headerName: "Hora", field: "hora", width:70}
-          ];
-          var rowDataUltimos = [
-          {nro: "1", hora: "10:22:25"},
-          {nro: "2", hora: "10:21:25"},
-          {nro: "3", hora: "10:20:25"}
-          ];
-
-          // let the grid know which columns and what data to use
-          gridOptionsUltimos = {
-            defaultColDef: {
-              resizable: false
-            },
-            rowData: rowDataUltimos,
-            columnDefs: columnDefsCarrerasCorredores,
-            headerHeight: 0,
-            suppressHorizontalScroll: true,
-            alwaysShowVerticalScroll: false,
-            rowHeight: 25,
-            localeText: {
-              // for text filter
-              contains: 'contiene',
-              notContains: 'no contiene',
-              startsWith: 'empieza con',
-              endsWith: 'termina con',
-
-              // for number filter and text filter
-              filterOoo: 'filtrar...',
-              applyFilter: 'aplicar filtro...',
-              equals: 'igual',
-              notEquals: 'distinto',
-
-              // other
-              noRowsToShow: 'No hay registros para mostrar  ',
-              loadingOoo: 'Cargando...',
-
-              // filter conditions
-              andCondition: 'Y',
-              orCondition: 'O',
-            }
-          };
-          // lookup the container we want the Grid to use
-          var eGridUltimos = document.querySelector('#gridUltimosMarcados');
-          new agGrid.Grid(eGridUltimos, gridOptionsUltimos);
-
-        }
-        //FIN TABLA ULTIMOS
 
         function refrescarTablaCarrera(){
           sqlQuery(function (err, result){

@@ -19,57 +19,101 @@
         </td>
       </tr>
       </table>
-    <div >
 
-
-    </div>
     INSCRIPTOS
 
-    <div id="ccGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+    <div id="gridCorredoresCarreraV" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
 
 
-
-    <script type="text/javascript" charset="utf-8">
-      var $idCarrera;
-      var $carreraTerminada;
-
-
-    /*  function inscribirCarrera(){
-
-    }*/
+    <script >
+      var idCarrera_v;
+      var carreraTerminada_v;
+      var gridOptionsCarrerasV;
 
 
-
-      var $selectCarreras = $('#select-carreras').selectize({
+      var selectCarreras_v = $('#select-carreras').selectize({
         maxItems: 1,
         valueField: 'id',
         labelField: 'nombre',
-        searchField: 'terminada',
+        searchField: 'nombre',
         onChange:function(value){
-          $idCarrera = value;
-
-          habilitarInscripcion();
-          //se refrescan los datos de la tabla cuando cambia la seleccion en la lista
-          getCorredoresCarrera(function (err, result){
-            gridOptionsCarreras.api.setRowData(result);
-          });
-
-          //se pone la fecha
-          //$('#fecha').append('<div><span class="name">' + this.fecha + '</span></div>');
-        },
+                  idCarrera_v = value;
+                  refrescarTablaVerCarrera();
+                  },
         create: false
-
       });
 
-      var selectizeCarreras = $selectCarreras[0].selectize;
+      var selectizeCarreras_v = selectCarreras_v[0].selectize;
 
-
-      getCarreras(function (err, result){
-        selectizeCarreras.addOption(result);
-        selectizeCarreras.refreshOptions();
+      getCarreras_v(function (err, result){
+        selectizeCarreras_v.addOption(result);
+        selectizeCarreras_v.refreshOptions();
       });
 
-      function getCarreras(callback){
+      function getCarreras_v(callback){
+        query =  'SELECT * FROM carreras_view';
+        sqlQuery(callback, query);
+      }
+
+
+    //SETUP TABLA
+      // specify the columns
+      var columnDefsCarreras_v = [
+      {headerName: "Global", field: "global", sortable: true, width:75},
+      {headerName: "Pos", field: "posicion", sortable: true, width:65},
+      //{lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
+      {headerName: "Nombre", field: "nombre", width:100},
+      {headerName: "Apellido", field: "apellido", width:110},
+      {headerName: "Pechera", field: "numero", filter: true, width:90},
+      {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
+      {headerName: "Tiempo", field: "tiempo", width:80},
+      {headerName: "Vueltas", field: "vueltas", width:80}
+      ];
+
+      // let the grid know which columns and what data to use
+      var gridOptionsCarrerasV = {
+        defaultColDef: {
+          resizable: false
+        },
+        columnDefs: columnDefsCarreras_v,
+        floatingFilter: false,
+        localeText: {
+          // for text filter
+          contains: 'contiene',
+          notContains: 'no contiene',
+          startsWith: 'empieza con',
+          endsWith: 'termina con',
+
+          // for number filter and text filter
+          filterOoo: 'filtrar...',
+          applyFilter: 'aplicar filtro...',
+          equals: 'igual',
+          notEquals: 'distinto',
+
+          // other
+          noRowsToShow: 'No hay registros para mostrar  ',
+          loadingOoo: 'Cargando...',
+
+          // filter conditions
+          andCondition: 'Y',
+          orCondition: 'O',
+        }
+      };
+        var eGridDivCarreras_v = document.querySelector('#gridCorredoresCarreraV');
+        refrescarTablaVerCarrera();
+        new agGrid.Grid(eGridDivCarreras_v, gridOptionsCarrerasV);
+
+      function refrescarTablaVerCarrera(){
+        var queryCorredores = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
+        sqlQuery(function (err, result){
+          gridOptionsCarrerasV.api.setRowData(result);
+        }, queryCorredores);
+      }
+
+
+
+      //FUNCION DE CONSULTAS A MYSQL
+      function sqlQuery(callback, queryString){
         var mysql = require('mysql');
         var connection = mysql.createConnection({
           host     : 'localhost',
@@ -86,130 +130,28 @@
         });
         console.log("performing query");
         // Perform a query
-        $query = 'SELECT * FROM carreras_view';
-        connection.query($query, function(err, rows, fields) {
+
+        connection.query(queryString, function(err, rows, fields) {
           if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
-            return;
-          }
-          console.log("Query categorias succesfully executed");
-          callback(err, rows);
 
-
-        });
-
-        // Close the connection
-        connection.end(function(){
-          // The connection has been closed
-        });
-      }
-
-
-      function habilitarInscripcion(){
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'bicisoft'
-        });
-        var $isCarreraTerminada = false;
-        connection.connect(function(err) {
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
-        // Perform a query
-          console.log("consulta de la CUENTA");
-        $query = 'SELECT count(*) as cuenta FROM carreras WHERE id='+$idCarrera+' AND terminada = 0 ' ;
-        connection.query($query, function(err, rows, fields) {
-          if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
-            return;
-          }
-            //console.log("consulta realizada de la CUENTA");
-            if (rows[0].cuenta==0){
-
-              document.getElementById("terminado").innerHTML = "Carrera Finalizada";
-            }else{
-
-              document.getElementById("terminado").innerHTML = "";
+            if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+              console.log('REGISTRO DUPLICADO');
             }
-      });
-    }
+            else{
+              console.log("OCURRIO UN ERROR SQL.");
+              console.log(err);
+            }
 
-
-      //EMPIEZA configuracion TABLA
-      // specify the columns
-      var columnDefsCarreras = [
-      {headerName: "documento", field: "documento"},
-      {headerName: "nombre", field: "nombre"},
-      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
-      ];
-
-      // let the grid know which columns and what data to use
-      var gridOptionsCarreras = {
-        defaultColDef: {
-          width: 110,
-          resizable: true
-        },
-        columnDefs: columnDefsCarreras,
-      };
-
-      // lookup the container we want the Grid to use
-      var eGridDivCarreras = document.querySelector('#ccGrid');
-
-      getCorredoresCarrera(function (err, result){
-        gridOptionsCarreras.api.setRowData(result);
-      });
-
-      new agGrid.Grid(eGridDivCarreras, gridOptionsCarreras);
-
-
-      //nuevo
-      function getCorredoresCarrera(callback){
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'bicisoft'
-        });
-
-        connection.connect(function(err) {
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
-        // Perform a query
-        $query = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+$idCarrera;
-        connection.query($query, function(err, rows, fields) {
-          if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
             return;
           }
           callback(err, rows);
-
-
         });
-
         // Close the connection
         connection.end(function(){
           // The connection has been closed
         });
       }
-
-
-
 
     </script>
-
-
   </section>
 </template>
