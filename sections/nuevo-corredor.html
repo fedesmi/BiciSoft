@@ -9,19 +9,19 @@
         <h3>Asegurese que todos los datos son correctos antes de guardar.</h3>
       </div>
     </header>
-    
+
     <table columns="2">
       <tr class="trinput">
         <td>Nombre</td>
-        <td class="tdinput"><input type="text" class="input" name="background" ></td>
+        <td class="tdinput"><input id="nombreCo" style="text-transform: uppercase;" type="text" class="input" name="background" ></td>
       </tr>
       <tr class="trinput">
         <td>Apellido</td>
-        <td class="tdinput"><input type="text" class="input" name="background" ></td>
+        <td class="tdinput"><input id="apellidoCo" style="text-transform: uppercase;" type="text" class="input" name="background" ></td>
       </tr>
       <tr class="trinput">
         <td>DNI</td>
-        <td class="tdinput"><input type="text" class="input" name="background" ></td>
+        <td class="tdinput"><input id="dniCo" type="number" step="1" class="input" name="background" ></td>
       </tr>
       <tr class="trinput">
         <td>Categoría</td>
@@ -32,29 +32,56 @@
 
 
     <div style="text-align: center; margin-top:30px;">
-      <button class="boton" id="limpiarBtn">Limpiar</button>
-      <button class="boton" id="guardarbtn">Guardar</button>
+      <button class="boton" id="limpiarBtnCo">Limpiar</button>
+      <button class="boton"  onclick="guardarCorredor()" id="guardarbtnCo">Guardar</button>
     </div>
   </div>
   <script type="text/javascript">
-    // <select id="select-tools"></select>
+
+    var idCategoria;
+
     var $select = $('#select-categorias').selectize({
       maxItems: 1,
       valueField: 'id',
       labelField: 'descripcion',
       searchField: 'descripcion',
+      onChange:function(value){
+        idCategoria = value;
+          },
       create: false
     });
 
     var selectize = $select[0].selectize;
 
-    getCategorias(function (err, result){
+    var sql = 'SELECT * FROM categorias';
+    sqlQuery(function (err, result){
       selectize.addOption(result);
       selectize.refreshOptions();
+    }, sql);
 
-    });
 
-    function getCategorias(callback){
+
+
+    function guardarCorredor(){
+      var nombreCorredor = document.getElementById("nombreCo").value;
+      var apellidoCorredor = document.getElementById("apellidoCo").value;
+      var dniCorredor = document.getElementById("dniCo").value;
+      var sql = 'INSERT INTO corredores(documento, nombre, apellido, categoria) VALUES( '+dniCorredor+', UPPER("'+nombreCorredor+'"), UPPER("'+apellidoCorredor+'"),  '+idCategoria+')';
+      sqlQuery(function (err, result){
+        selectize_tcarreas.addOption(result);
+        selectize_tcarreas.refreshOptions();
+        //limpiar inputs
+        document.getElementById("nombreCo").value="";
+        document.getElementById("apellidoCo").value="";
+        document.getElementById("dniCo").value="";
+         alert('Corredor '+nombreCorredor+' '+apellidoCorredor+' guardado correctamente');
+      }, sql);
+
+    }
+
+
+    //FUNCION DE CONSULTAS A MYSQL
+    function sqlQuery(callback, queryString){
       var mysql = require('mysql');
       var connection = mysql.createConnection({
         host     : 'localhost',
@@ -71,19 +98,22 @@
       });
       console.log("performing query");
       // Perform a query
-      $query = 'SELECT * FROM categorias';
-      connection.query($query, function(err, rows, fields) {
+
+      connection.query(queryString, function(err, rows, fields) {
         if(err){
-          console.log("An error ocurred performing the query.");
-          console.log(err);
+
+          if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+            console.log('REGISTRO DUPLICADO');
+          }
+          else{
+            console.log("OCURRIO UN ERROR SQL.");
+            console.log(err);
+          }
+
           return;
         }
-        console.log("Query categorias succesfully executed");
         callback(err, rows);
-
-
       });
-
       // Close the connection
       connection.end(function(){
         // The connection has been closed

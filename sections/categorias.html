@@ -18,7 +18,7 @@
     <script type="text/javascript" charset="utf-8">
 
       // specify the columns
-      var columnDefs = [
+      var columnDefsCatego = [
 
       {headerName: "descripcion", field: "descripcion"},
       {headerName: "observacion", field: "observacion", sortable: true, filter: true}
@@ -27,39 +27,27 @@
 
 
       // let the grid know which columns and what data to use
-      var gridOptionsCorredores = {
+      var gridOptionsCategorias = {
         defaultColDef: {
           width: 110,
           resizable: true
         },
-        columnDefs: columnDefs,
+        columnDefs: columnDefsCatego
         //rowData: rowData
 
       };
 
       // lookup the container we want the Grid to use
-      var eGridDiv = document.querySelector('#categoriasGrid');
-
-      //para hacerlo con un php y cubrir la clave de bd
-        /*fetch('http://localhost/xml-php/MYSQL.php').then(function(response) {
-          return response.json();
-        }).then(function(data) {
-          console.log('bien');
-           console.log(data);
-          //gridOptions.api.setRowData(data);
-        })*/
+      var eGridCatego = document.querySelector('#categoriasGrid');
+      var sql = 'SELECT * FROM categorias';
+      sqlQuery(function (err, result){
+        gridOptionsCategorias.api.setRowData(result);
+      }, sql);
+      new agGrid.Grid(eGridCatego, gridOptionsCategorias);
 
 
-
-      getRows(function (err, result){
-        gridOptionsCorredores.api.setRowData(result);
-      });
-
-      new agGrid.Grid(eGridDiv, gridOptionsCorredores);
-
-
-      //nuevo
-      function getRows(callback){
+      //FUNCION DE CONSULTAS A MYSQL
+      function sqlQuery(callback, queryString){
         var mysql = require('mysql');
         var connection = mysql.createConnection({
           host     : 'localhost',
@@ -76,19 +64,22 @@
         });
         console.log("performing query");
         // Perform a query
-        $query = 'SELECT * FROM `categorias`';
-        connection.query($query, function(err, rows, fields) {
+
+        connection.query(queryString, function(err, rows, fields) {
           if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
+
+            if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+              console.log('REGISTRO DUPLICADO');
+            }
+            else{
+              console.log("OCURRIO UN ERROR SQL.");
+              console.log(err);
+            }
+
             return;
           }
-          console.log("Query succesfully executed");
           callback(err, rows);
-
-
         });
-
         // Close the connection
         connection.end(function(){
           // The connection has been closed

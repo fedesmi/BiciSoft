@@ -13,11 +13,7 @@
     <table columns="2">
       <tr class="trinput">
         <td>Nombre</td>
-        <td class="tdinput"><input type="text" class="input" name="background" ></td>
-      </tr>
-      <tr class="trinput">
-        <td>Fecha</td>
-        <td class="tdinput"><input type="text" class="input" name="background" ></td>
+        <td class="tdinput"><input type="text" style="text-transform: uppercase;" id="inputNombreC" class="input" name="background" ></td>
       </tr>
       <tr class="trinput">
         <td>Tipo</td>
@@ -29,28 +25,51 @@
 
     <div style="text-align: center; margin-top:30px;">
       <button class="boton" id="limpiarBtn">Limpiar</button>
-      <button class="boton" id="guardarbtn">Guardar</button>
+      <button class="boton" onclick="guardarCarrera()" id="guardaCarrera">Guardar</button>
     </div>
   </div>
   <script type="text/javascript">
-    // <select id="select-tools"></select>
+    var idTipo;
+
+
+
+
     var $select_tcarreas = $('#select-tcarrera').selectize({
       maxItems: 1,
       valueField: 'id',
       labelField: 'descripcion',
+      onChange:function(value){
+        //console.log("funcionvalue"+value);
+        idTipo = value;
+          },
       create: false
+
     });
 
     var selectize_tcarreas = $select_tcarreas[0].selectize;
 
-
-    getTCarreras(function (err, result){
+    var sql = 'SELECT * FROM tipo_carreras';
+    sqlQuery(function (err, result){
       selectize_tcarreas.addOption(result);
       selectize_tcarreas.refreshOptions();
+    }, sql);
 
-    });
+    function guardarCarrera(){
+      var nombreCarrera = document.getElementById("inputNombreC").value;
+      var sql = 'INSERT INTO CARRERAS(nombre, id_tipo) VALUES( UPPER("'+nombreCarrera+'") , '+idTipo+')';
+      sqlQuery(function (err, result){
+        selectize_tcarreas.addOption(result);
+        selectize_tcarreas.refreshOptions();
+        //limpiar inputs
+         document.getElementById("inputNombreC").value ="";
+         alert('Carrera '+nombreCarrera+' guardada correctamente');
+      }, sql);
 
-    function getTCarreras(callback){
+    }
+
+
+    //FUNCION DE CONSULTAS A MYSQL
+    function sqlQuery(callback, queryString){
       var mysql = require('mysql');
       var connection = mysql.createConnection({
         host     : 'localhost',
@@ -67,19 +86,22 @@
       });
       console.log("performing query");
       // Perform a query
-      $query = 'SELECT * FROM tipo_carreras';
-      connection.query($query, function(err, rows, fields) {
+
+      connection.query(queryString, function(err, rows, fields) {
         if(err){
-          console.log("An error ocurred performing the query.");
-          console.log(err);
+
+          if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+            console.log('REGISTRO DUPLICADO');
+          }
+          else{
+            console.log("OCURRIO UN ERROR SQL.");
+            console.log(err);
+          }
+
           return;
         }
-        console.log("Query categorias succesfully executed");
         callback(err, rows);
-
-
       });
-
       // Close the connection
       connection.end(function(){
         // The connection has been closed

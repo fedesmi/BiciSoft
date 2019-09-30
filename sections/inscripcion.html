@@ -30,7 +30,7 @@
           <div class="test-header">
             CORREDORES
           </div>
-          <div id="inscripcionCorredoresGrid"  style="height:330px; width:280px;" class="ag-theme-balham"></div>
+          <div id="inscripcionCorredoresGrid"  style="height:330px; width:320px;" class="ag-theme-balham"></div>
         </td>
         <td>
           <div class="test-header">
@@ -55,6 +55,7 @@
       function inscribirCarrera_i(){
         if(document.getElementById("nro-corredor").value>0){
           numeroCorredor_i = document.getElementById("nro-corredor").value;
+          document.getElementById("nro-corredor").value="";
           //if carrera no empezada o terminada
           var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idCarrera_i+" AND terminada=0 AND empezada = 0";
           sqlQuery(function (err, result){
@@ -215,7 +216,7 @@
       //EMPIEZA configuracion TABLA INSCRIPTOS
       // specify the columns
       var columnDefsCarreras_i = [
-      {headerName: "Pechera", field: "numero"},
+      {headerName: "Pechera", field: "numero", width:75},
       {headerName: "documento", field: "documento"},
       {headerName: "nombre", field: "nombre"},
       {headerName: "apellido", field: "apellido", sortable: true}
@@ -224,7 +225,7 @@
       // let the grid know which columns and what data to use
       var gridOptionsCarreras_i = {
         defaultColDef: {
-          width: 110,
+          width: 100,
           resizable: true
         },
         rowSelection: 'single',

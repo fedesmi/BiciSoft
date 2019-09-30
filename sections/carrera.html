@@ -49,6 +49,8 @@
         //VARIABLES
         //ID CARRERA SELECCIONADA
         var idCarreraCorrer;
+        var maxVueltas;
+        var salenJuntos;
         //CONSULTAS SQL
         var sqlCorredoresCarrera = 'SELECT * FROM carrera_corredor_view WHERE id_carrera=';
         var sqlCarrerasNoFinalizadas = 'SELECT * FROM carreras_no_finalizadas_view';
@@ -82,15 +84,22 @@
         function empezarCarrera(){
           //SI SE CERRO LA APLICACION, INICIA DESDE DONDE ESTABA LA CARRERA
           //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA//dependiendo el tipo de carrera
-          sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+idCarreraCorrer;
-          sqlQuery(function (err, result){
 
-            sql='UPDATE carreras set empezada=1 where id ='+idCarreraCorrer;
+
+          sql='UPDATE carreras set empezada=1, fecha = now() where id ='+idCarreraCorrer;
+          sqlQuery(function (err, result){
+            document.getElementById("botonEmpezar").innerHTML = "Terminar";
+            document.getElementById("marcarField").disabled = false;
+            document.getElementById("marcarField").focus();
+
+            sql= sqlCarrerasNoFinalizadas +' where id = '+idCarreraCorrer;
             sqlQuery(function (err, result){
-              document.getElementById("botonEmpezar").innerHTML = "Terminar";
-              document.getElementById("marcarField").disabled = false;
-              document.getElementById("marcarField").focus();
-            }, sql);
+              if (result[0].salen_todos === 1)
+                sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+idCarreraCorrer;
+                sqlQuery(function (err, result){
+                }, sql);
+              }, sql);
+
           }, sql);
 
         }
@@ -105,7 +114,7 @@
             document.getElementById("marcarField").disabled = true;
             document.getElementById("botonEmpezar").innerHTML ="Empezar";
             //limpia listas y tablas
-            ('#select-carreras-correr')[0].selectize.destroy();
+            //('#select-carreras-correr')[0].selectize.destroy();
             gridOptionsCarrerasCorredores.api.setRowData();
             definirListaCarreras();
 
@@ -156,7 +165,7 @@
           sqlQuery(function (err, result){
             if(!err){
               //define posiciones
-            /*var sql = "UPDATE carrera_corredores AS cc "+
+              /*var sql = "UPDATE carrera_corredores AS cc "+
               "JOIN "+
               "(SELECT @rownum:=@rownum+1 rownum, id_carrera, id_corredor "+
               "FROM carrera_corredores caco "+
@@ -169,12 +178,12 @@
 
               //DETERMINA LAS POSICIONES GLOBALES Y DE CADA CATEGORIA
               var sql = "UPDATE carrera_corredores AS cc "+
-                        "JOIN( SELECT id_carrera, documento as id_corredor, "+
-                        "RANK() OVER( ORDER BY vueltas DESC , tiempo ) rank, "+
-                        "RANK() OVER ( PARTITION BY id_categoria ORDER BY global ASC ) rankCat "+
-                        "FROM carrera_corredor_view WHERE id_carrera = "+idCarreraCorrer+") AS r ON "+
-                          "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
-                        "SET cc.global = r.rank, cc.posicion = r.rankCat";
+              "JOIN( SELECT id_carrera, documento as id_corredor, "+
+              "RANK() OVER( ORDER BY vueltas DESC , tiempo ) rank, "+
+              "RANK() OVER ( PARTITION BY id_categoria ORDER BY global ASC ) rankCat "+
+              "FROM carrera_corredor_view WHERE id_carrera = "+idCarreraCorrer+") AS r ON "+
+              "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
+              "SET cc.global = r.rank, cc.posicion = r.rankCat";
 
               console.log(sql);
               /*old
@@ -323,9 +332,6 @@
           connection.end(function(){
             // The connection has been closed
           });
-
-
-
         }
 
       </script>
