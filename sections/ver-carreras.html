@@ -18,14 +18,17 @@
           <div id="terminado"></div>
         </td>
       </tr>
-      </table>
+    </table>
 
+    <button class="boton" onclick="onBtPrint()"  id="botonImprimir"  >Imprimir</button>
     INSCRIPTOS
-
-    <div id="gridCorredoresCarreraV" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
+    <div id="gridCorredoresCarreraV" disabled style="height: 350px;width:650px;" class="ag-theme-balham my-grid"></div>
 
 
     <script >
+
+
+
       var idCarrera_v;
       var carreraTerminada_v;
       var gridOptionsCarrerasV;
@@ -37,18 +40,22 @@
         labelField: 'nombre',
         searchField: 'nombre',
         onChange:function(value){
-                  idCarrera_v = value;
-                  refrescarTablaVerCarrera();
-                  },
+          idCarrera_v = value;
+          refrescarTablaVerCarrera();
+        },
         create: false
       });
 
       var selectizeCarreras_v = selectCarreras_v[0].selectize;
+      refreshListaCarrerasVer();
 
-      getCarreras_v(function (err, result){
-        selectizeCarreras_v.addOption(result);
-        selectizeCarreras_v.refreshOptions();
-      });
+      function refreshListaCarrerasVer(){
+        getCarreras_v(function (err, result){
+          selectizeCarreras_v.addOption(result);
+          selectizeCarreras_v.refreshOptions();
+        });
+      }
+
 
       function getCarreras_v(callback){
         query =  'SELECT * FROM carreras_view';
@@ -56,18 +63,18 @@
       }
 
 
-    //SETUP TABLA
+      //SETUP TABLA
       // specify the columns
       var columnDefsCarreras_v = [
-      {headerName: "Global", field: "global", sortable: true, width:75},
-      {headerName: "Pos", field: "posicion", sortable: true, width:65},
+      {headerName: "Global", field: "global", sortable: true, width:60},
+      {headerName: "Pos", field: "posicion", sortable: true, width:50},
       //{lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
       {headerName: "Nombre", field: "nombre", width:100},
       {headerName: "Apellido", field: "apellido", width:110},
-      {headerName: "Pechera", field: "numero", filter: true, width:90},
+      {headerName: "Pechera", field: "numero", filter: true, width:85},
       {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
       {headerName: "Tiempo", field: "tiempo", width:80},
-      {headerName: "Vueltas", field: "vueltas", width:80}
+      {headerName: "Vueltas", field: "vueltas", width:65}
       ];
 
       // let the grid know which columns and what data to use
@@ -97,11 +104,17 @@
           // filter conditions
           andCondition: 'Y',
           orCondition: 'O',
+        },
+        animateRows: true,
+        toolPanelSuppressSideButtons: true,
+        groupUseEntireRow: true,
+        onGridReady: function(params) {
+          params.api.expandAll();
         }
       };
-        var eGridDivCarreras_v = document.querySelector('#gridCorredoresCarreraV');
-        refrescarTablaVerCarrera();
-        new agGrid.Grid(eGridDivCarreras_v, gridOptionsCarrerasV);
+      var eGridDivCarreras_v = document.querySelector('#gridCorredoresCarreraV');
+      refrescarTablaVerCarrera();
+      new agGrid.Grid(eGridDivCarreras_v, gridOptionsCarrerasV);
 
       function refrescarTablaVerCarrera(){
         var queryCorredores = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
@@ -112,46 +125,90 @@
 
 
 
-      //FUNCION DE CONSULTAS A MYSQL
-      function sqlQuery(callback, queryString){
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'bicisoft'
-        });
 
-        connection.connect(function(err) {
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
-        console.log("performing query");
-        // Perform a query
-
-        connection.query(queryString, function(err, rows, fields) {
-          if(err){
-
-            if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
-              console.log('REGISTRO DUPLICADO');
+      /**/
+      function onBtPrint() {
+        let remote = require('electron').remote
+        var fs = require('fs')
+        remote.getCurrentWindow().webContents.printToPDF({printBackground: true, landscape: true}, function (error, data) {
+          if (error) throw error
+          fs.writeFile('C:\\print.pdf', data, function (error) {
+            if (error) {
+              throw error
             }
-            else{
-              console.log("OCURRIO UN ERROR SQL.");
-              console.log(err);
-            }
-
-            return;
-          }
-          callback(err, rows);
-        });
-        // Close the connection
-        connection.end(function(){
-          // The connection has been closed
-        });
+            shell.openExternal('file://' + pdfPath)
+            event.sender.send('wrote-pdf', pdfPath)
+          })
+        })
       }
 
-    </script>
-  </section>
+
+      /* foto de la tabla FUNCIONANDO JQUERY
+      function print() {
+      html2canvas($('#gridCorredoresCarreraV'), {
+      onrendered: function(canvas) {
+
+      var saveAs = function(uri, filename) {
+      var link = document.createElement('a');
+      if (typeof link.download === 'string') {
+      document.body.appendChild(link); // Firefox requires the link to be in the body
+      link.download = filename;
+      link.href = uri;
+      link.click();
+      document.body.removeChild(link); // remove the link when done
+    } else {
+    location.replace(uri);
+  }
+};
+
+var img = canvas.toDataURL("image/png"),
+uri = img.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+
+saveAs(uri, 'tableExport.png');
+}
+});
+}*/
+
+//FUNCION DE CONSULTAS A MYSQL
+function sqlQuery(callback, queryString){
+  var mysql = require('mysql');
+  var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : null,
+    database : 'bicisoft'
+  });
+
+  connection.connect(function(err) {
+    if(err){
+      console.log(err.code);
+      console.log(err.fatal);
+    }
+  });
+  console.log("performing query");
+  // Perform a query
+
+  connection.query(queryString, function(err, rows, fields) {
+    if(err){
+
+      if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+        console.log('REGISTRO DUPLICADO');
+      }
+      else{
+        console.log("OCURRIO UN ERROR SQL.");
+        console.log(err);
+      }
+
+      return;
+    }
+    callback(err, rows);
+  });
+  // Close the connection
+  connection.end(function(){
+    // The connection has been closed
+  });
+}
+
+</script>
+</section>
 </template>

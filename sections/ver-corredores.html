@@ -17,6 +17,9 @@
 
     <script type="text/javascript" charset="utf-8">
 
+
+
+
       // specify the columns
       var columnDefs = [
 
@@ -38,9 +41,17 @@
         //rowData: rowData
 
       };
+      var  eGridDiv = document.querySelector('#verCorredoresGrid');
 
-      // lookup the container we want the Grid to use
-      var eGridDiv = document.querySelector('#verCorredoresGrid');
+      inizializarVerCorredores();
+
+      function inizializarVerCorredores(){
+        getRows(function (err, result){
+          gridOptions.api.setRowData(result);
+        });
+
+      }
+      new agGrid.Grid(eGridDiv, gridOptions);
 
       //para hacerlo con un php y cubrir la clave de bd
         /*fetch('http://localhost/xml-php/MYSQL.php').then(function(response) {
@@ -50,15 +61,6 @@
            console.log(data);
           //gridOptions.api.setRowData(data);
         })*/
-
-
-
-      getRows(function (err, result){
-        gridOptions.api.setRowData(result);
-      });
-
-      new agGrid.Grid(eGridDiv, gridOptions);
-
 
       //nuevo
       function getRows(callback){

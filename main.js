@@ -1,5 +1,5 @@
 const { app, BrowserWindow } = require('electron')
-
+const electron = require('electron')
 
 
 function createWindow () {

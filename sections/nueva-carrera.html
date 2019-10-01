@@ -62,9 +62,15 @@
         selectize_tcarreas.refreshOptions();
         //limpiar inputs
          document.getElementById("inputNombreC").value ="";
+         refreshCarreras();
          alert('Carrera '+nombreCarrera+' guardada correctamente');
       }, sql);
 
+    }
+
+    function refreshCarreras(){
+      refreshListaCarreras();
+      refreshListaCarrerasVer();
     }
 
 

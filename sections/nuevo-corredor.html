@@ -21,7 +21,7 @@
       </tr>
       <tr class="trinput">
         <td>DNI</td>
-        <td class="tdinput"><input id="dniCo" type="number" step="1" class="input" name="background" ></td>
+        <td class="tdinput"><input id="dniCo" type="number" step="1" min="1" class="input" name="background" ></td>
       </tr>
       <tr class="trinput">
         <td>Categoría</td>
@@ -74,9 +74,14 @@
         document.getElementById("nombreCo").value="";
         document.getElementById("apellidoCo").value="";
         document.getElementById("dniCo").value="";
-         alert('Corredor '+nombreCorredor+' '+apellidoCorredor+' guardado correctamente');
+        refreshCorredores();
+        alert('Corredor '+nombreCorredor+' '+apellidoCorredor+' guardado correctamente');
       }, sql);
+    }
 
+    function refreshCorredores(){
+        inizializarVerCorredores();
+        inizializarVerCorredoresInscripcion();
     }
 
 

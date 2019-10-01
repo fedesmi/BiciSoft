@@ -15,7 +15,7 @@
           <select id="select-carreras_i"  style="width:250px;"  placeholder="Elegir Carrera..."></select>
         </td>
         <td>
-          <input id="nro-corredor" type="number" step="1" class="input-base" style="width: 70px;" name="background" >
+          <input id="nro-corredor" type="number"  min="1" class="input-base" style="width: 70px;" name="background" >
           <button class="boton" onclick="inscribirCarrera_i()" disabled=true;  id="botonInscribir_i"  >Inscribir</button>
           <button class="boton" onclick="quitarCarrera_i()" disabled=true;  id="botonQuitar_i"  >Quitar</button>
         </td>
@@ -193,9 +193,14 @@
 
       // lookup the container we want the Grid to use
       var eGridDivCorredores = document.querySelector('#inscripcionCorredoresGrid');
-      getRowsCorredores(function (err, result){
-        gridOptionsCorredores.api.setRowData(result);
-      });
+
+      inizializarVerCorredoresInscripcion();
+
+      function inizializarVerCorredoresInscripcion(){
+        getRowsCorredores(function (err, result){
+          gridOptionsCorredores.api.setRowData(result);
+        });
+      }
 
       new agGrid.Grid(eGridDivCorredores, gridOptionsCorredores);
 
