@@ -125,49 +125,50 @@
 
 
 
-
-      /**/
       function onBtPrint() {
-        let remote = require('electron').remote
-        var fs = require('fs')
-        remote.getCurrentWindow().webContents.printToPDF({printBackground: true, landscape: true}, function (error, data) {
-          if (error) throw error
-          fs.writeFile('C:\\print.pdf', data, function (error) {
-            if (error) {
-              throw error
-            }
-            shell.openExternal('file://' + pdfPath)
-            event.sender.send('wrote-pdf', pdfPath)
-          })
-        })
-      }
+        window.jsPDF = require('jspdf');
+        window.autoTable = require('jspdf-autotable');
 
 
-      /* foto de la tabla FUNCIONANDO JQUERY
-      function print() {
-      html2canvas($('#gridCorredoresCarreraV'), {
-      onrendered: function(canvas) {
+        var pdf = new jsPDF('p', 'pt', 'letter');
+        // source can be HTML-formatted string, or a reference
+        // to an actual DOM element from which the text will be scraped.
+        var queryCorredores = 'SELECT global, nombre, apellido, numero, categoria, tiempo, vueltas  FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
+        sqlQuery(function (err, result){
 
-      var saveAs = function(uri, filename) {
-      var link = document.createElement('a');
-      if (typeof link.download === 'string') {
-      document.body.appendChild(link); // Firefox requires the link to be in the body
-      link.download = filename;
-      link.href = uri;
-      link.click();
-      document.body.removeChild(link); // remove the link when done
-    } else {
-    location.replace(uri);
+          /* var columns = ["General", "Nombre", "Apellido", "Pechera","Categoria","Tiempo","Vueltas"];
+          specialElementHandlers = {
+              // element with id of "bypass" - jQuery style selector
+              '#bypassme': function (element, renderer) {
+                  // true = "handled elsewhere, bypass text extraction"
+                  return true
+              }
+          };*/
+          var columns = [
+                {title: "General", dataKey: "global"},
+                {title: "Nombre", dataKey: "nombre"},
+                {title: "Apellido", dataKey: "apellido"},
+                {title: "Pechera", dataKey: "numero"},
+                {title: "Categoria", dataKey: "categoria"},
+                {title: "Tiempo", dataKey: "tiempo"},
+                {title: "Vueltas", dataKey: "vueltas"}
+            ];
+
+          console.log(result);
+
+          margins = {
+              top: 80,
+              bottom: 60,
+              left: 40,
+              width: 522
+          };
+            pdf.autoTable(columns,result,{ margin:{ top: 25  }});
+            pdf.save('mipdf.pdf');
+        }, queryCorredores);
+
   }
-};
 
-var img = canvas.toDataURL("image/png"),
-uri = img.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
 
-saveAs(uri, 'tableExport.png');
-}
-});
-}*/
 
 //FUNCION DE CONSULTAS A MYSQL
 function sqlQuery(callback, queryString){
