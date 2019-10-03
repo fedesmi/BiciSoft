@@ -167,7 +167,14 @@
                 left: 40,
                 width: 522
             };
-              pdf.autoTable(columns,result,{ margin:{ top: 25  }});
+            var header = function (data) {
+                 pdf.setFontSize(18);
+                 pdf.setTextColor(40);
+                 pdf.setFontStyle('normal');
+                 pdf.text(nombreCarrera, data.settings.margin.left, 50);
+             };
+
+              pdf.autoTable(columns,result,{ margin:{ top: 90  }, didDrawPage : header});
               pdf.autoTable(columns2,result2,{ margin:{ top: 25  }});
               pdf.save('BiciSoftFSM_'+nombreCarrera+'.pdf');
           }, queryCorredoresCatego);
