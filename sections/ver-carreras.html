@@ -133,7 +133,7 @@
         window.autoTable = require('jspdf-autotable');
 
 
-        var pdf = new jsPDF('p', 'pt', 'letter');
+        var pdf = new jsPDF('p', 'pt', 'a4');
         // source can be HTML-formatted string, or a reference
         // to an actual DOM element from which the text will be scraped.
         var queryCorredores = 'SELECT global, posicion, nombre, apellido, numero, categoria, tiempo, vueltas  FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
