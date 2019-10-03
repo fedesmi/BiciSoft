@@ -32,6 +32,8 @@
       var idCarrera_v;
       var carreraTerminada_v;
       var gridOptionsCarrerasV;
+      var nombreCarrera;
+        var selectizeCarreras_v;
 
 
       var selectCarreras_v = $('#select-carreras').selectize({
@@ -41,12 +43,13 @@
         searchField: 'nombre',
         onChange:function(value){
           idCarrera_v = value;
+          nombreCarrera = this.getItem(value)[0].innerHTML;
           refrescarTablaVerCarrera();
         },
         create: false
       });
 
-      var selectizeCarreras_v = selectCarreras_v[0].selectize;
+      selectizeCarreras_v = selectCarreras_v[0].selectize;
       refreshListaCarrerasVer();
 
       function refreshListaCarrerasVer(){
@@ -133,37 +136,44 @@
         var pdf = new jsPDF('p', 'pt', 'letter');
         // source can be HTML-formatted string, or a reference
         // to an actual DOM element from which the text will be scraped.
-        var queryCorredores = 'SELECT global, nombre, apellido, numero, categoria, tiempo, vueltas  FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
-        sqlQuery(function (err, result){
+        var queryCorredores = 'SELECT global, posicion, nombre, apellido, numero, categoria, tiempo, vueltas  FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
 
-          /* var columns = ["General", "Nombre", "Apellido", "Pechera","Categoria","Tiempo","Vueltas"];
-          specialElementHandlers = {
-              // element with id of "bypass" - jQuery style selector
-              '#bypassme': function (element, renderer) {
-                  // true = "handled elsewhere, bypass text extraction"
-                  return true
-              }
-          };*/
+        sqlQuery(function (err, result){
           var columns = [
                 {title: "General", dataKey: "global"},
+                {title: "Posición", dataKey: "posicion"},
+                {title: "Categoria", dataKey: "categoria"},
                 {title: "Nombre", dataKey: "nombre"},
                 {title: "Apellido", dataKey: "apellido"},
                 {title: "Pechera", dataKey: "numero"},
-                {title: "Categoria", dataKey: "categoria"},
                 {title: "Tiempo", dataKey: "tiempo"},
                 {title: "Vueltas", dataKey: "vueltas"}
             ];
+          var queryCorredoresCatego = 'SELECT posicion, global, nombre, apellido, numero, categoria, tiempo, vueltas FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v+' ORDER BY categoria, posicion';
+          sqlQuery(function (err, result2){
+            var columns2 = [
+                  {title: "Categoria", dataKey: "categoria"},
+                  {title: "Posición", dataKey: "posicion"},
+                  {title: "General", dataKey: "global"},
+                  {title: "Pechera", dataKey: "numero"},
+                  {title: "Nombre", dataKey: "nombre"},
+                  {title: "Apellido", dataKey: "apellido"},
+                  {title: "Tiempo", dataKey: "tiempo"},
+                  {title: "Vueltas", dataKey: "vueltas"}
+              ];
+            margins = {
+                top: 80,
+                bottom: 60,
+                left: 40,
+                width: 522
+            };
+              pdf.autoTable(columns,result,{ margin:{ top: 25  }});
+              pdf.autoTable(columns2,result2,{ margin:{ top: 25  }});
+              pdf.save('BiciSoftFSM_'+nombreCarrera+'.pdf');
+          }, queryCorredoresCatego);
 
-          console.log(result);
 
-          margins = {
-              top: 80,
-              bottom: 60,
-              left: 40,
-              width: 522
-          };
-            pdf.autoTable(columns,result,{ margin:{ top: 25  }});
-            pdf.save('mipdf.pdf');
+
         }, queryCorredores);
 
   }
