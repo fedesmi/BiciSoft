@@ -15,7 +15,7 @@
           <select id="select-carreras_i"  style="width:250px;"  placeholder="Elegir Carrera..."></select>
         </td>
         <td>
-          <input id="nro-corredor" type="number"  min="1" class="input-base" style="width: 70px;" name="background" >
+          <input id="nro-corredor" type="text"  min="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="input-base" style="width: 70px;" name="background" >
           <button class="boton" onclick="inscribirCarrera_i()" disabled=true;  id="botonInscribir_i"  >Inscribir</button>
           <button class="boton" onclick="quitarCarrera_i()" disabled=true;  id="botonQuitar_i"  >Quitar</button>
         </td>
@@ -60,9 +60,10 @@
           var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idCarrera_i+" AND terminada=0 AND empezada = 0";
           sqlQuery(function (err, result){
             if (result[0].cuenta>0){
+              var sqlInscribir = "INSERT INTO carrera_corredores(id_carrera, id_corredor, id_categoria, numero) VALUES("+idCarrera_i+", "+agregarSeleccionado+", (SELECT categoria FROM corredores WHERE documento = "+agregarSeleccionado+"), "+numeroCorredor_i+" )";
               sqlQuery(function (err, result){
                 refrescarInscriptosGrid()
-              }, "INSERT INTO carrera_corredores(id_carrera, id_corredor, numero) VALUES("+idCarrera_i+", "+agregarSeleccionado+", "+numeroCorredor_i+" )");
+              }, sqlInscribir );
             }
             else{
               alert('La carrera esta empezada o terminada');
@@ -125,10 +126,14 @@
       var selectizeCarreras_i = selectCarreras_i[0].selectize;
 
 
-      getCarreras_i(function (err, result){
-        selectizeCarreras_i.addOption(result);
-        selectizeCarreras_i.refreshOptions();
-      });
+      function refreshListaCarrerasInscripcion(){
+        getCarreras_i(function (err, result){
+          selectizeCarreras_i.addOption(result);
+          selectizeCarreras_i.refreshOptions();
+        });
+      }
+
+      refreshListaCarrerasInscripcion();
 
       function getCarreras_i(callback){
         query =  'SELECT * FROM carreras_view WHERE terminada = 0';

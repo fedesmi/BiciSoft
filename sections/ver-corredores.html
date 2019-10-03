@@ -16,18 +16,57 @@
 
 
     <script type="text/javascript" charset="utf-8">
-
-
+      querySqlCorredores = 'SELECT * FROM corredores_view';
+      var categoriasVar =  {"ELITE": "ELITE", "JUNIOR": "JUNIOR", "MAYOR": "MAYOR"};
 
 
       // specify the columns
       var columnDefs = [
 
-      {headerName: "documento", field: "documento"},
-      {headerName: "nombre", field: "nombre"},
-      {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+        {headerName: "documento", field: "documento"},
+        {headerName: "nombre", field: "nombre"},
+        {headerName: "apellido", field: "apellido", sortable: true, filter: true},
+        {headerName: "categoria", field: "categoria", sortable: true, filter: true, editable: true,
+        cellEditor: "select",
+          cellEditorParams: {
+                values: extractValues(categoriasVar)
+          },
+          valueFormatter: function (params) {
+                 return lookupValue(categoriasVar, params.value);
+          },
+          valueParser: function (params) {
+                 return lookupKey(categoriasVar, params.newValue);
+          },
+          onCellValueChanged: function (value) {
+            console.log(value.data.documento);
+            console.log(value.newValue);
+            var sqlupdate ="UPDATE corredores set categoria= (SELECT id FROM categorias WHERE descripcion='"+value.newValue+"') WHERE documento="+value.data.documento;
+              sqlQuery(function (err, result){
+                alert('Datos de '+value.data.nombre+' '+value.data.apellido+' guardados. Nueva Categoria: '+value.newValue);
+              }, sqlupdate);
+          }
+
+        }
+
       ];
+
+    function extractValues(mappings) {
+        return Object.keys(mappings);
+    }
+
+    function lookupValue(mappings, key) {
+        return mappings[key];
+    }
+
+    function lookupKey(mappings, name) {
+        for (var key in mappings) {
+            if (mappings.hasOwnProperty(key)) {
+                if (name === mappings[key]) {
+                    return key;
+                }
+            }
+        }
+    }
 
 
 
@@ -46,9 +85,10 @@
       inizializarVerCorredores();
 
       function inizializarVerCorredores(){
-        getRows(function (err, result){
+
+        sqlQuery(function (err, result){
           gridOptions.api.setRowData(result);
-        });
+        }, querySqlCorredores);
 
       }
       new agGrid.Grid(eGridDiv, gridOptions);
@@ -62,8 +102,9 @@
           //gridOptions.api.setRowData(data);
         })*/
 
-      //nuevo
-      function getRows(callback){
+
+      //FUNCION DE CONSULTAS A MYSQL
+      function sqlQuery(callback, queryString){
         var mysql = require('mysql');
         var connection = mysql.createConnection({
           host     : 'localhost',
@@ -80,19 +121,22 @@
         });
         console.log("performing query");
         // Perform a query
-        $query = 'SELECT * FROM corredores_view';
-        connection.query($query, function(err, rows, fields) {
+
+        connection.query(queryString, function(err, rows, fields) {
           if(err){
-            console.log("An error ocurred performing the query.");
-            console.log(err);
+
+            if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+              console.log('REGISTRO DUPLICADO');
+            }
+            else{
+              console.log("OCURRIO UN ERROR SQL.");
+              console.log(err);
+            }
+
             return;
           }
-          console.log("Query succesfully executed");
           callback(err, rows);
-
-
         });
-
         // Close the connection
         connection.end(function(){
           // The connection has been closed
