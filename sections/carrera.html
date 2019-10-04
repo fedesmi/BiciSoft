@@ -165,18 +165,26 @@
           //SETEAR LA POSICION
           sqlQuery(function (err, result){
             if(!err){
-              //DETERMINA LAS POSICIONES GLOBALES Y DE CADA CATEGORIA
+              //DETERMINA LAS POSICIONES GENERALES
               var sql = "UPDATE carrera_corredores AS cc "+
               "JOIN( SELECT id_carrera, documento as id_corredor, "+
-              "RANK() OVER( ORDER BY vueltas DESC , tiempo ) rank, "+
-              "RANK() OVER ( PARTITION BY id_categoria ORDER BY global ASC ) rankCat "+
+              "RANK() OVER( ORDER BY vueltas DESC , tiempo ) rank "+
               "FROM carrera_corredor_view WHERE id_carrera = "+idCarreraCorrer+") AS r ON "+
               "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
-              "SET cc.global = r.rank, cc.posicion = r.rankCat";
-
+              "SET cc.global = r.rank";
               console.log(sql);
+              // DETERMINA POSICION DE CADA CATEGORIA
               sqlQuery(function (err, result){
-                refrescarTablaCarrera();
+                var sql = "UPDATE carrera_corredores AS cc "+
+                "JOIN( SELECT id_carrera, documento as id_corredor, "+
+                "RANK() OVER ( PARTITION BY id_categoria ORDER BY global ASC ) rankCat "+
+                "FROM carrera_corredor_view WHERE id_carrera = "+idCarreraCorrer+") AS r ON "+
+                "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
+                "SET  cc.posicion = r.rankCat";
+                sqlQuery(function (err, result){
+                  refrescarTablaCarrera();
+                }, sql);
+
               }, sql);
             }
           }, sql);
