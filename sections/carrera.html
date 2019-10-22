@@ -283,7 +283,7 @@
           //{lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
           {headerName: "Nombre", field: "nombre", width:100},
           {headerName: "Apellido", field: "apellido", width:110},
-          {headerName: "Pechera", field: "numero", filter: true, width:90},
+          {headerName: "Pechera", field: "numero", filter: true, sortable: true, width:90},
           {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
           {headerName: "Tiempo", field: "tiempo", width:80},
           {headerName: "Vueltas", field: "vueltas", width:80}
@@ -292,7 +292,7 @@
           // let the grid know which columns and what data to use
           gridOptionsCarrerasCorredores = {
             defaultColDef: {
-              resizable: false
+              resizable: true
             },
             columnDefs: columnDefsCarrerasCorredores,
             floatingFilter: false,

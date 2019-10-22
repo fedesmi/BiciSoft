@@ -20,7 +20,7 @@
       </tr>
     </table>
 
-    <button class="boton" onclick="onBtPrint()"  id="botonImprimir"  >Imprimir</button>
+    <button class="boton" onclick="onBtPrint()"  id="botonImprimir"  >Generar PDF</button>
     INSCRIPTOS
     <div id="gridCorredoresCarreraV" disabled style="height: 350px;width:650px;" class="ag-theme-balham my-grid"></div>
 
@@ -74,7 +74,7 @@
       //{lockPosition: true, valueGetter: 'node.rowIndex+1', cellClass: 'locked-col', width: 70, headerName: 'Posición', suppressNavigable: true},
       {headerName: "Nombre", field: "nombre", width:100},
       {headerName: "Apellido", field: "apellido", width:110},
-      {headerName: "Pechera", field: "numero", filter: true, width:85},
+      {headerName: "Pechera", field: "numero", filter: true, sortable: true, width:85},
       {headerName: "Categoria", field: "categoria", sortable: true, filter: true, width:95},
       {headerName: "Tiempo", field: "tiempo", width:80},
       {headerName: "Vueltas", field: "vueltas", width:65}
@@ -83,7 +83,7 @@
       // let the grid know which columns and what data to use
       var gridOptionsCarrerasV = {
         defaultColDef: {
-          resizable: false
+          resizable: true
         },
         columnDefs: columnDefsCarreras_v,
         floatingFilter: false,
@@ -133,7 +133,8 @@
         window.autoTable = require('jspdf-autotable');
 
 
-        var pdf = new jsPDF('p', 'pt', 'a4');
+        var pdf = new jsPDF('l', 'pt', 'a4');
+
         // source can be HTML-formatted string, or a reference
         // to an actual DOM element from which the text will be scraped.
         var queryCorredores = 'SELECT global, posicion, nombre, apellido, numero, categoria, tiempo, vueltas  FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
@@ -143,13 +144,13 @@
                 {title: "General", dataKey: "global"},
                 {title: "Posición", dataKey: "posicion"},
                 {title: "Categoria", dataKey: "categoria"},
+                {title: "Pechera", dataKey: "numero"},
                 {title: "Nombre", dataKey: "nombre"},
                 {title: "Apellido", dataKey: "apellido"},
-                {title: "Pechera", dataKey: "numero"},
                 {title: "Tiempo", dataKey: "tiempo"},
-                {title: "Vueltas", dataKey: "vueltas"}
+                //{title: "Vueltas", dataKey: "vueltas"}
             ];
-          var queryCorredoresCatego = 'SELECT posicion, global, nombre, apellido, numero, categoria, tiempo, vueltas FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v+' ORDER BY categoria, posicion';
+          var queryCorredoresCatego = 'SELECT posicion, global, nombre, apellido, numero, categoria, tiempo, vueltas FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v+' ORDER BY id_categoria, posicion';
           sqlQuery(function (err, result2){
             var columns2 = [
                   {title: "Categoria", dataKey: "categoria"},
@@ -159,7 +160,7 @@
                   {title: "Nombre", dataKey: "nombre"},
                   {title: "Apellido", dataKey: "apellido"},
                   {title: "Tiempo", dataKey: "tiempo"},
-                  {title: "Vueltas", dataKey: "vueltas"}
+                  //{title: "Vueltas", dataKey: "vueltas"}
               ];
             margins = {
                 top: 80,
@@ -168,14 +169,25 @@
                 width: 522
             };
             var header = function (data) {
-                 pdf.setFontSize(18);
-                 pdf.setTextColor(40);
-                 pdf.setFontStyle('normal');
-                 pdf.text(nombreCarrera, data.settings.margin.left, 50);
+                 //pdf.setFontSize(14);
+                 //pdf.setTextColor(40);
+                 //pdf.setFontStyle('normal');
+                 pdf.text(35, 45, nombreCarrera+" - Posiciones Generales");
              };
-
-              pdf.autoTable(columns,result,{ margin:{ top: 90  }, didDrawPage : header});
-              pdf.autoTable(columns2,result2,{ margin:{ top: 25  }});
+             var header2 = function (data) {
+                  //pdf.setFontSize(14);
+                  //pdf.setTextColor(40);
+                  //pdf.setFontStyle('normal');
+                  pdf.text(35, 45, nombreCarrera+" - Posiciones por Categoría");
+              };
+            //  pdf.setFontSize(13);
+              //pdf.autoTable(columns,result,{ margin:{ top: 90  }, didDrawPage : header});
+              pdf.text(35, 25, 'Biciposta');
+              pdf.text(700, 25, 'Bicisoft-FSM');
+              pdf.autoTable(columns,result,{ margin:{ top: 60  }, didDrawPage : header, headStyles: {valign: 'middle'}, bodyStyles: {minCellHeight: 14, fontSize: 13, valign: 'middle'} });
+              //pdf.text("POSICIONES GENERALES", data.settings.margin.left, 50);
+              pdf.addPage();
+              pdf.autoTable(columns2,result2,{ margin:{ top: 60 }, didDrawPage : header2, headStyles: {valign: 'middle'},  bodyStyles: {minCellHeight: 14, fontSize: 13, valign: 'middle'}});
               pdf.save('BiciSoftFSM_'+nombreCarrera+'.pdf');
           }, queryCorredoresCatego);
 
