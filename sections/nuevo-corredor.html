@@ -36,7 +36,18 @@
       <button class="boton"  onclick="guardarCorredor()" id="guardarbtnCo">Guardar</button>
     </div>
   </div>
+
+
+  <div id="infonc" style="visibility: hidden;"></div>
+
+
   <script type="text/javascript">
+
+    function showinfo_nc(text) {
+          document.getElementById('infonc').innerHTML = text;
+          document.getElementById('infonc').style.visibility = 'visible';
+          setTimeout("document.getElementById('infonc').style.visibility = 'hidden'", 10000);
+    }
 
     var idCategoria;
 
@@ -74,8 +85,9 @@
         document.getElementById("nombreCo").value="";
         document.getElementById("apellidoCo").value="";
         document.getElementById("dniCo").value="";
+        showinfo_nc("CORREDOR "+nombreCorredor +" " +apellidoCorredor+ " DADO DE ALTA CORRECTAMENTE!");
         refreshCorredores();
-        alert('Corredor '+nombreCorredor+' '+apellidoCorredor+' guardado correctamente');
+        //alert('Corredor '+nombreCorredor+' '+apellidoCorredor+' guardado correctamente');
       }, sql);
     }
 
@@ -86,7 +98,7 @@
 
 
     //FUNCION DE CONSULTAS A MYSQL
-    function sqlQuery(callback, queryString){
+    /*function sqlQuery(callback, queryString){
       var mysql = require('mysql');
       var connection = mysql.createConnection({
         host     : 'localhost',
@@ -123,7 +135,7 @@
       connection.end(function(){
         // The connection has been closed
       });
-    }
+    }*/
 
   </script>
 </section>

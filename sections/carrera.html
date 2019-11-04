@@ -20,11 +20,19 @@
       <tr class="trinput">
         <td>Tipo</td>
         <td class="tdinput"><select id="select-carreras-correr"  style="width:350px;"  placeholder="Elegir Carrera..."></select></td>
-        <td class="tdinput"><button class="boton" onclick="manejarCarrera()"  id="botonEmpezar"  >Empezar</button></td>
+        <td class="tdinput"><button class="boton" onclick="manejarCarrera()"  id="botonEmpezar"  >Empezar</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Grupo Salida</td>
+        <td class="tdinput"><input id="grupo" type="text"   min="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="input-base" style="width: 80px;" name="background" >
+          <button class="boton" onclick="largarGrupo()"  id="botonTerminar"  >Largar</button>
+        </td>
+        <td></td>
       </tr>
       <tr class="trinput" style="height: 100px;" >
         <td>Marcar #</td>
-        <td class="tdinput"><input type="text" disabled="true"
+        <td class="tdinput"><input type="text"
           style="font-weight: bolder;
           height: 80px;
           width: 340px;
@@ -32,7 +40,8 @@
           color: YELLOW;"
           id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="MARCAR"></td>
           <td>
-            <ol>
+            <ol style="width: 200px; ">
+              <li class="liultimos" id="li4"></li>
               <li class="liultimos" id="li3"></li>
               <li class="liultimos" id="li2"></li>
               <li class="liultimos" id="li1"></li>
@@ -43,13 +52,22 @@
       </table>
 
       <div id="gridCorredoresCarreras" style="height: 300px;width:700px;" class="ag-theme-balham"></div>
+      <div id="infoc" style="visibility: hidden;"></div>
 
-      <script>
+
+      <script type="text/javascript">
+
+        function showinfo_c(text) {
+              document.getElementById('infoc').innerHTML = text;
+              document.getElementById('infoc').style.visibility = 'visible';
+              setTimeout("document.getElementById('infoc').style.visibility = 'hidden'", 10000);
+        }
+
 
         //VARIABLES
         //ID CARRERA SELECCIONADA
-        var idCarreraCorrer;
-        var maxVueltas;
+        var idCarreraCorrer=0;
+        // var maxVueltas;
         var salenJuntos;
         //CONSULTAS SQL
         var sqlCorredoresCarrera = 'SELECT * FROM carrera_corredor_view WHERE id_carrera=';
@@ -63,8 +81,10 @@
         var max_vueltas;
         var condiciones;
         var numeroCorredor;
+        var numeroGrupo_c;
 
         var ultimasMarcas = [];
+        ultimasMarcas.push('---');
         ultimasMarcas.push('---');
         ultimasMarcas.push('---');
         ultimasMarcas.push('---');
@@ -80,36 +100,43 @@
         //SETUP Y COMPORTAMIENTO BOTON EMPEZAR/TERMINAR
         function manejarCarrera(){
           if (document.getElementById("botonEmpezar").innerHTML === "Terminar"){
+            document.getElementById("botonEmpezar").innerHTML = "Empezar";
             terminarCarrera();
+
           }
           else {
-            empezarCarrera();
+            document.getElementById("botonEmpezar").innerHTML = "Terminar";
+            iniciarCarrera();
+
           }
         }
-
-        //FUNCION EMPEZAR CARRERA
-        function empezarCarrera(){
-          //SI SE CERRO LA APLICACION, INICIA DESDE DONDE ESTABA LA CARRERA
-          //MARCAR INICIO CORREDORES SEGUN TIPO DE CARRERA//dependiendo el tipo de carrera
-
-
-          sql='UPDATE carreras set empezada=1, fecha = now() where id ='+idCarreraCorrer;
+        function iniciarCarrera(){
+          sql='UPDATE carreras set fecha = now(), empezada = 1 where id ='+idCarreraCorrer ;
           sqlQuery(function (err, result){
-            document.getElementById("botonEmpezar").innerHTML = "Terminar";
-            document.getElementById("marcarField").disabled = false;
-            document.getElementById("marcarField").focus();
 
-            //sql= sqlCarrerasNoFinalizadas +' where id = '+idCarreraCorrer;
-            //sqlQuery(function (err, result){
-              if (salen_todos === 1){
-                //MARCAR A TODOS EL COMIENZO
-                sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+idCarreraCorrer;
-                sqlQuery(function (err, result){console.log(sql); }, sql);
-              }
-              //}, sql);
+          }, sql);
+        }
 
-            }, sql);
 
+        function largarGrupo(){
+          numeroGrupo_c = document.getElementById("grupo").value;
+          document.getElementById("grupo").value = '';
+
+          sql='INSERT INTO carreras_grupos(id_carrera, id_grupo, empezada) VALUES('+idCarreraCorrer+','+numeroGrupo_c+',1)';
+          sqlQuery(function (err, result){
+
+            if (salen_todos === 1){
+              //MARCAR A TODOS EL COMIENZO
+              sql='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT id_carrera, numero, now()   FROM carrera_corredores as cc where cc.id_carrera = '+idCarreraCorrer+' AND cc.grupo = '+numeroGrupo_c ;
+              sqlQuery(function (err, result){
+
+                ultimasMarcas.push('Inicia Grupo nro '+numeroGrupo_c);
+                ultimasMarcas.shift();
+                actualizarListaUlitmasMarcas();
+                // console.log(sql);
+              }, sql);
+            }
+          }, sql);
         }
         //FIN EMPEZAR CARRERA
 
@@ -117,17 +144,20 @@
         function terminarCarrera(){
           // MARCAR CARRERA TERMINADA (AVISAR QUE QUEDAN CORREDORES SIN FINALIZAR
           //Y SE TOMARAN EN CUENTA COMO DESCALIFICADOS).
-          sql='UPDATE carreras set terminada=1 where id ='+idCarreraCorrer;
-          sqlQuery(function (err, result){
-            console.log(sql);
-            document.getElementById("marcarField").disabled = true;
-            document.getElementById("botonEmpezar").innerHTML ="Empezar";
-            //limpia listas y tablas
-            selectizeCarrerasCorrer.removeOption(idCarreraCorrer);
-            idCarreraCorrer =0;
-            refreshCarreras();
 
-          }, sql);
+          if (confirm("¿Desea Terminar la carrera?")){
+            sql='UPDATE carreras set terminada=1 where id ='+idCarreraCorrer;
+            sqlQuery(function (err, result){
+              // console.log(sql);
+              //document.getElementById("marcarField").disabled = true;
+              //limpia listas y tablas
+              selectizeCarrerasCorrer.removeOption(idCarreraCorrer);
+              idCarreraCorrer =0;
+              refreshCarreras();
+              gridOptionsCarrerasCorredores.api.setRowData();
+
+            }, sql);
+          }
         }
         //FIN TERMINAR CARRERA
 
@@ -135,38 +165,62 @@
         function manejarMarca(event){
           if (event.keyCode===13 && document.getElementById("marcarField").value!=="") {
             numeroCorredor = document.getElementById("marcarField").value;
-            var sqltipoCarrera = "SELECT count(*) as cuenta FROM carreras as ca JOIN tipo_carreras as tc ON ca.id_tipo = tc.id JOIN carrera_corredores AS cc ON ca.id = cc.id_carrera WHERE ca.id="+idCarreraCorrer+" AND cc.numero = "+numeroCorredor+" AND vueltas<"+max_vueltas;
-            console.log(sqltipoCarrera);
+
+            //SI EL GRUPO EMPEZO
+            sql = 'SELECT empezada, grupo FROM `carrera_corredores` cc JOIN carreras_grupos cg ON cc.grupo = cg.id_grupo where numero = '+numeroCorredor;
             sqlQuery(function (err, result){
-             if (result[0].cuenta>0) {
-                  //MARCAR CORREDOR
-                  sqlMarca='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+idCarreraCorrer+', cc.numero, now() FROM carrera_corredores as cc WHERE cc.id_carrera='+idCarreraCorrer+'  AND cc.numero = '+numeroCorredor;
-                  console.log(sqlMarca);
+              if (result.length > 0){
+                if (result[0].empezada==1){
+                  var sqltipoCarrera = "SELECT count(*) as cuenta FROM carreras as ca JOIN tipo_carreras as tc ON ca.id_tipo = tc.id JOIN carrera_corredores AS cc ON ca.id = cc.id_carrera WHERE ca.id="+idCarreraCorrer+" AND cc.numero = "+numeroCorredor+" AND vueltas<"+max_vueltas;
+                  // console.log(sqltipoCarrera);
                   sqlQuery(function (err, result){
-                    if (!err){
-                      calcularTiempos(numeroCorredor);
-                      ultimasMarcas.push('Marca: '+numeroCorredor);
-                    }else{
-                      //alert('no existe corredor');
-                      ultimasMarcas.push('inexistente');
+                    if (result[0].cuenta>0) {
+                      //MARCAR CORREDOR
+                      sqlMarca='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+idCarreraCorrer+', cc.numero, now() FROM carrera_corredores as cc WHERE cc.id_carrera='+idCarreraCorrer+'  AND cc.numero = '+numeroCorredor;
+                      // console.log(sqlMarca);
+                      sqlQuery(function (err, result){
+                        if (!err){
+                          calcularTiempos(numeroCorredor);
+                          ultimasMarcas.push('Marca: '+numeroCorredor);
+                        }else{
+                          //alert('no existe corredor');
+                          showinfo_c("NO EXISTE CORREDOR");
+                          ultimasMarcas.push('inexistente');
+                        }
+                        ultimasMarcas.shift();
+                        actualizarListaUlitmasMarcas();
+                      }, sqlMarca);
                     }
-                    ultimasMarcas.shift();
-                    actualizarListaUlitmasMarcas();
-                  }, sqlMarca);
-            }
-            else{
-              console.log("corredor finalizo carrera");
-            }
-            }, sqltipoCarrera);
+                    else{
+                      ultimasMarcas.push('#100 ya finalizó!');
+                      ultimasMarcas.shift();
+                      actualizarListaUlitmasMarcas();
+                      console.log("corredor finalizo carrera");
+                    }
+                  }, sqltipoCarrera);
+                } else{
+                  ultimasMarcas.push('grupo '+result[0].grupo+' no largó');
+                  ultimasMarcas.shift();
+                  actualizarListaUlitmasMarcas();
+                  console.log("el grupo no largó");
+                }
+              }else {
+                ultimasMarcas.push('inexistente');
+                ultimasMarcas.shift();
+                actualizarListaUlitmasMarcas();
+              }
+            }, sql);
             document.getElementById("marcarField").value ="";
           }
         }
+
         //FIN MARCAR CORREDOR
 
         function actualizarListaUlitmasMarcas(){
           document.getElementById("li1").innerHTML = ultimasMarcas[0];
           document.getElementById("li2").innerHTML = ultimasMarcas[1];
           document.getElementById("li3").innerHTML = ultimasMarcas[2];
+          document.getElementById("li4").innerHTML = ultimasMarcas[3];
         }
 
         //CALCULAR TIEMPOS Y POSICIONES
@@ -178,7 +232,7 @@
           " and numero_corredor = "+numeroCorredor+" order by marca ASC limit 1))) "+
           " WHERE id_carrera = "+idCarreraCorrer+" AND numero = "+numeroCorredor;
 
-          console.log(sql);
+          // console.log(sql);
           //SETEAR LA POSICION
           sqlQuery(function (err, result){
             if(!err){
@@ -189,7 +243,7 @@
               "FROM carrera_corredor_view WHERE id_carrera = "+idCarreraCorrer+") AS r ON "+
               "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
               "SET cc.global = r.rank";
-              console.log(sql);
+              // console.log(sql);
               // DETERMINA POSICION DE CADA CATEGORIA
               sqlQuery(function (err, result){
                 var sql = "UPDATE carrera_corredores AS cc "+
@@ -199,7 +253,7 @@
                 "( cc.id_carrera = r.id_carrera AND cc.id_corredor = r.id_corredor ) "+
                 "SET  cc.posicion = r.rankCat";
                 sqlQuery(function (err, result){
-                  console.log(sql);
+                  // console.log(sql);
                   refrescarTablaCarrera();
                 }, sql);
 
@@ -211,16 +265,16 @@
 
         //VERIFICAR SI LA CARRERA ESTA EN CURSO
         function verificarEmpezada(idPar){
-          var sqlEmpezadoTerminado = "SELECT COUNT(*) as cuenta FROM carreras WHERE id="+idPar+" AND empezada = 1 ";
-          console.log(sqlEmpezadoTerminado);
+          var sqlEmpezadoTerminado = sql = 'SELECT empezada FROM carreras where id = '+idCarreraCorrer;
+          // console.log(sqlEmpezadoTerminado);
           sqlQuery(function (err, result){
             //si esta empezada
-            if (result[0].cuenta>0){
-              document.getElementById("marcarField").disabled = false;
+            if (result[0].empezada==1){
+              //document.getElementById("marcarField").disabled = false;
               document.getElementById("botonEmpezar").innerHTML = "Terminar";
             }
             else{
-              document.getElementById("marcarField").disabled = true;
+            //  document.getElementById("marcarField").disabled = true;
               document.getElementById("botonEmpezar").innerHTML ="Empezar";
             }
           }, sqlEmpezadoTerminado);
@@ -254,14 +308,14 @@
         function obtenerTipoCarrera(value){
 
           queryTCarrera="SELECT tc.descripcion, tc.salen_todos, tc.max_vueltas, tc.condiciones FROM carreras as ca JOIN tipo_carreras as tc ON ca.id_tipo = tc.id WHERE ca.id="+value;
-          console.log(queryTCarrera);
+          // console.log(queryTCarrera);
           sqlQuery(function (err, result){
             //if(result.affectedRows>0){
-              tipo_carrera = result[0].descripcion;
-              salen_todos = result[0].salen_todos;
-              max_vueltas = result[0].max_vueltas;
-              condiciones = result[0].condiciones;
-              console.log(tipo_carrera+" "+salen_todos+" "+max_vueltas+" "+condiciones);
+            tipo_carrera = result[0].descripcion;
+            salen_todos = result[0].salen_todos;
+            max_vueltas = result[0].max_vueltas;
+            condiciones = result[0].condiciones;
+            // console.log(tipo_carrera+" "+salen_todos+" "+max_vueltas+" "+condiciones);
             //}
           }, queryTCarrera);
         }
@@ -330,45 +384,7 @@
           }, sqlCorredoresCarrera+idCarreraCorrer);
         }
 
-        //FUNCION DE CONSULTAS A MYSQL
-        function sqlQuery(callback, queryString){
-          var mysql = require('mysql');
-          var connection = mysql.createConnection({
-            host     : 'localhost',
-            user     : 'root',
-            password : null,
-            database : 'bicisoft'
-          });
 
-          connection.connect(function(err) {
-            if(err){
-              console.log(err.code);
-              console.log(err.fatal);
-            }
-          });
-          console.log("performing query");
-          // Perform a query
-
-          connection.query(queryString, function(err, rows, fields) {
-            if(err){
-
-              if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
-                console.log('REGISTRO DUPLICADO');
-              }
-              else{
-                console.log("OCURRIO UN ERROR SQL.");
-                console.log(err);
-              }
-
-              return;
-            }
-            callback(err, rows);
-          });
-          // Close the connection
-          connection.end(function(){
-            // The connection has been closed
-          });
-        }
 
       </script>
 

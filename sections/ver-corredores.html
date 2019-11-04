@@ -11,67 +11,111 @@
 
 
     </header>
-
     <div id="verCorredoresGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
 
+    <br/><div id="infonvc" style="visibility: hidden;"></div>
 
-    <script type="text/javascript" charset="utf-8">
+
+    <script type="text/javascript">
+
+      function showinfo_vc(text) {
+            document.getElementById('infonvc').innerHTML = text;
+            document.getElementById('infonvc').style.visibility = 'visible';
+            setTimeout("document.getElementById('infonvc').style.visibility = 'hidden'", 10000);
+      }
+
+
+
       querySqlCorredores = 'SELECT * FROM corredores_view';
-      var categoriasVar =  {"ELITE": "ELITE", "JUNIOR": "JUNIOR", "MAYOR": "MAYOR"};
+
+      // var categoriasVar =  {"ELITE": "ELITE", "JUNIOR": "JUNIOR", "MAYOR": "MAYOR"};
+      var categoriasVar;
+      sql = 'SELECT arreglo FROM categorias_array';
+      var columnDefs;
+      var gridOptions;
+      var  eGridDiv;
+
+      sqlQuery(function (err, result){
+
+        categoriasVar =  JSON.parse(result[0].arreglo);
 
 
-      // specify the columns
-      var columnDefs = [
+        // llenar lo otro
+        // specify the columns
+        columnDefs = [
 
         {headerName: "documento", field: "documento"},
-        {headerName: "nombre", field: "nombre"},
-        {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-        {headerName: "categoria", field: "categoria", sortable: true, filter: true, editable: true,
-        cellEditor: "select",
-          cellEditorParams: {
-                values: extractValues(categoriasVar)
-          },
-          valueFormatter: function (params) {
-                 return lookupValue(categoriasVar, params.value);
-          },
-          valueParser: function (params) {
-                 return lookupKey(categoriasVar, params.newValue);
-          },
+        {headerName: "nombre", field: "nombre" , editable: true,
           onCellValueChanged: function (value) {
-            console.log(value.data.documento);
-            console.log(value.newValue);
-            var sqlupdate ="UPDATE corredores set categoria= (SELECT id FROM categorias WHERE descripcion='"+value.newValue+"') WHERE documento="+value.data.documento;
-              sqlQuery(function (err, result){
-                alert('Datos de '+value.data.nombre+' '+value.data.apellido+' guardados. Nueva Categoria: '+value.newValue);
-              }, sqlupdate);
-          }
+            // console.log(value);
+            // console.log(value.data.documento);
+             console.log(value.newValue);
+            var sqlupdate ="UPDATE corredores set nombre= UPPER('"+value.newValue+"') WHERE documento="+value.data.documento;
+            sqlQuery(function (err, result){
+             //alert('Nuevo Nombre: '+value.newValue);
+             showinfo_vc('Nuevo Nombre: '+value.newValue);
 
+            }, sqlupdate);
+          }
+        },
+        {headerName: "apellido", field: "apellido", sortable: true, filter: true,  editable: true,
+        onCellValueChanged: function (value) {
+          // console.log(value);
+          // console.log(value.data.documento);
+           console.log(value.newValue);
+          var sqlupdate ="UPDATE corredores set apellido= UPPER('"+value.newValue+"') WHERE documento="+value.data.documento;
+          sqlQuery(function (err, result){
+            //alert('Nuevo Apellido: '+value.newValue);
+            showinfo_vc('Nuevo Apellido: '+value.newValue);
+
+          }, sqlupdate);
         }
+        },
+        {headerName: "categoria", field: "categoria", sortable: true, filter: true, editable: true,
+        cellEditor: "agSelectCellEditor",
+        cellEditorParams: {
+          values: extractValues(categoriasVar)
+        },
+        valueFormatter: function (params) {
+          return lookupValue(categoriasVar, params.value);
+        },
+        valueParser: function (params) {
+          return lookupKey(categoriasVar, params.newValue);
+        },
+        onCellValueChanged: function (value) {
+          console.log(value.data.documento);
+          console.log(value.newValue);
+          var sqlupdate ="UPDATE corredores set categoria= (SELECT id FROM categorias WHERE descripcion='"+value.newValue+"') WHERE documento="+value.data.documento;
+          sqlQuery(function (err, result){
+            //alert('Datos de '+value.data.nombre+' '+value.data.apellido+' guardados. Nueva Categoria: '+value.newValue);
+              showinfo_vc("Datos de "+value.data.nombre+" "+value.data.apellido+" guardados. Nueva Categoria: "+value.newValue);
+          }, sqlupdate);
+        }
+
+      }
 
       ];
 
-    function extractValues(mappings) {
+      function extractValues(mappings) {
         return Object.keys(mappings);
-    }
+      }
 
-    function lookupValue(mappings, key) {
+      function lookupValue(mappings, key) {
         return mappings[key];
-    }
+      }
 
-    function lookupKey(mappings, name) {
+      function lookupKey(mappings, name) {
         for (var key in mappings) {
-            if (mappings.hasOwnProperty(key)) {
-                if (name === mappings[key]) {
-                    return key;
-                }
+          if (mappings.hasOwnProperty(key)) {
+            if (name === mappings[key]) {
+              return key;
             }
+          }
         }
-    }
-
-
+      }
 
       // let the grid know which columns and what data to use
-      var gridOptions = {
+      gridOptions = {
         defaultColDef: {
           width: 110,
           resizable: true
@@ -80,69 +124,24 @@
         //rowData: rowData
 
       };
-      var  eGridDiv = document.querySelector('#verCorredoresGrid');
+      eGridDiv = document.querySelector('#verCorredoresGrid');
 
       inizializarVerCorredores();
 
-      function inizializarVerCorredores(){
 
-        sqlQuery(function (err, result){
-          gridOptions.api.setRowData(result);
-        }, querySqlCorredores);
-
-      }
       new agGrid.Grid(eGridDiv, gridOptions);
+    }, sql);
 
-      //para hacerlo con un php y cubrir la clave de bd
-        /*fetch('http://localhost/xml-php/MYSQL.php').then(function(response) {
-          return response.json();
-        }).then(function(data) {
-          console.log('bien');
-           console.log(data);
-          //gridOptions.api.setRowData(data);
-        })*/
+    function inizializarVerCorredores(){
 
+      sqlQuery(function (err, result){
+        gridOptions.api.setRowData(result);
+      }, querySqlCorredores);
 
-      //FUNCION DE CONSULTAS A MYSQL
-      function sqlQuery(callback, queryString){
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-          host     : 'localhost',
-          user     : 'root',
-          password : null,
-          database : 'bicisoft'
-        });
-
-        connection.connect(function(err) {
-          if(err){
-            console.log(err.code);
-            console.log(err.fatal);
-          }
-        });
-        console.log("performing query");
-        // Perform a query
-
-        connection.query(queryString, function(err, rows, fields) {
-          if(err){
-
-            if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
-              console.log('REGISTRO DUPLICADO');
-            }
-            else{
-              console.log("OCURRIO UN ERROR SQL.");
-              console.log(err);
-            }
-
-            return;
-          }
-          callback(err, rows);
-        });
-        // Close the connection
-        connection.end(function(){
-          // The connection has been closed
-        });
-      }
+    }
 
     </script>
-  </section>
+
+
+</section>
 </template>

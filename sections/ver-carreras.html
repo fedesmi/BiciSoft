@@ -30,10 +30,10 @@
 
 
       var idCarrera_v;
-      var carreraTerminada_v;
       var gridOptionsCarrerasV;
       var nombreCarrera;
-        var selectizeCarreras_v;
+      var selectizeCarreras_v;
+      var carreraterminada_v;
 
 
       var selectCarreras_v = $('#select-carreras').selectize({
@@ -44,7 +44,10 @@
         onChange:function(value){
           idCarrera_v = value;
           nombreCarrera = this.getItem(value)[0].innerHTML;
-          refrescarTablaVerCarrera();
+          if(carreraterminada_v==1) {
+            refrescarTablaVerCarrera();
+          }
+
         },
         create: false
       });
@@ -56,6 +59,7 @@
         getCarreras_v(function (err, result){
           selectizeCarreras_v.addOption(result);
           selectizeCarreras_v.refreshOptions();
+          carreraterminada_v = result[0].terminada;
         });
       }
 
@@ -200,7 +204,7 @@
 
 
 //FUNCION DE CONSULTAS A MYSQL
-function sqlQuery(callback, queryString){
+/*function sqlQuery(callback, queryString){
   var mysql = require('mysql');
   var connection = mysql.createConnection({
     host     : 'localhost',
@@ -237,7 +241,7 @@ function sqlQuery(callback, queryString){
   connection.end(function(){
     // The connection has been closed
   });
-}
+}*/
 
 </script>
 </section>
