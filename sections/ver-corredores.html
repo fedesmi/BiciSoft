@@ -84,10 +84,10 @@
         },
         onCellValueChanged: function (value) {
           console.log(value.data.documento);
-          console.log(value.newValue);
+          console.log(value);
           var sqlupdate ="UPDATE corredores set categoria= (SELECT id FROM categorias WHERE descripcion='"+value.newValue+"') WHERE documento="+value.data.documento;
           sqlQuery(function (err, result){
-            //alert('Datos de '+value.data.nombre+' '+value.data.apellido+' guardados. Nueva Categoria: '+value.newValue);
+              inizializarVerCorredoresInscripcion();
               showinfo_vc("Datos de "+value.data.nombre+" "+value.data.apellido+" guardados. Nueva Categoria: "+value.newValue);
           }, sqlupdate);
         }

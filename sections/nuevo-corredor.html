@@ -62,14 +62,21 @@
       create: false
     });
 
-    var selectize = $select[0].selectize;
+    var selectize_tcategorias = $select[0].selectize;
 
     var sql = 'SELECT * FROM categorias';
     sqlQuery(function (err, result){
-      selectize.addOption(result);
-      selectize.refreshOptions();
+      selectize_tcategorias.addOption(result);
+      selectize_tcategorias.refreshOptions();
     }, sql);
 
+    function refrescarCategoriasCorredor(){
+      var sqlprueba = 'SELECT * FROM categorias';
+      sqlQuery(function (err, result){
+        selectize_tcategorias.addOption(result);
+        selectize_tcategorias.refreshOptions();
+      }, sql);
+    }
 
 
 

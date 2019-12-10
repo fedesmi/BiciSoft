@@ -21,18 +21,20 @@
         <td>Tipo</td>
         <td class="tdinput"><select id="select-carreras-correr"  style="width:350px;"  placeholder="Elegir Carrera..."></select></td>
         <td class="tdinput"><button class="boton" onclick="manejarCarrera()"  id="botonEmpezar"  >Empezar</button>
+          <button class="boton" onclick="terminarCarrera()"  id="botonConfirma"  >Confirmar</button>
         </td>
       </tr>
       <tr>
         <td>Grupo Salida</td>
-        <td class="tdinput"><input id="grupo" type="text"   min="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="input-base" style="width: 80px;" name="background" >
-          <button class="boton" onclick="largarGrupo()"  id="botonTerminar"  >Largar</button>
+        <td class="tdinput"><input id="grupo" type="text" disabled   min="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="input-base" style="width: 80px;" name="background" >
+          <button class="boton" onclick="largarGrupo()" disabled  id="botonTerminar"  >Largar</button>
         </td>
         <td></td>
       </tr>
       <tr class="trinput" style="height: 100px;" >
         <td>Marcar #</td>
         <td class="tdinput"><input type="text"
+          disabled
           style="font-weight: bolder;
           height: 80px;
           width: 340px;
@@ -40,7 +42,7 @@
           color: YELLOW;"
           id="marcarField" class="input" name="background" onkeypress="manejarMarca(event)" placeholder="MARCAR"></td>
           <td>
-            <ol style="width: 200px; ">
+            <ol style="width: 300px; ">
               <li class="liultimos" id="li4"></li>
               <li class="liultimos" id="li3"></li>
               <li class="liultimos" id="li2"></li>
@@ -51,16 +53,16 @@
 
       </table>
 
-      <div id="gridCorredoresCarreras" style="height: 300px;width:700px;" class="ag-theme-balham"></div>
+      <div id="gridCorredoresCarreras" style="height: 300px;width:800px;" class="ag-theme-balham"></div>
       <div id="infoc" style="visibility: hidden;"></div>
 
 
       <script type="text/javascript">
-
+        document.getElementById("botonConfirma").style.visibility = 'hidden';
         function showinfo_c(text) {
-              document.getElementById('infoc').innerHTML = text;
-              document.getElementById('infoc').style.visibility = 'visible';
-              setTimeout("document.getElementById('infoc').style.visibility = 'hidden'", 10000);
+          document.getElementById('infoc').innerHTML = text;
+          document.getElementById('infoc').style.visibility = 'visible';
+          setTimeout("document.getElementById('infoc').style.visibility = 'hidden'", 10000);
         }
 
 
@@ -100,12 +102,15 @@
         //SETUP Y COMPORTAMIENTO BOTON EMPEZAR/TERMINAR
         function manejarCarrera(){
           if (document.getElementById("botonEmpezar").innerHTML === "Terminar"){
-            document.getElementById("botonEmpezar").innerHTML = "Empezar";
-            terminarCarrera();
-
+            document.getElementById("botonConfirma").style.visibility = 'visible';
           }
           else {
+            document.getElementById("marcarField").disabled = false;
+            document.getElementById("botonTerminar").disabled = false;
+            document.getElementById("grupo").disabled = false;
             document.getElementById("botonEmpezar").innerHTML = "Terminar";
+            //no deja inscribir mas
+            console.log('empezo la carrera');
             iniciarCarrera();
 
           }
@@ -113,7 +118,9 @@
         function iniciarCarrera(){
           sql='UPDATE carreras set fecha = now(), empezada = 1 where id ='+idCarreraCorrer ;
           sqlQuery(function (err, result){
-
+            selectizeCarreras_i.removeOption(idCarreraCorrer);
+            refrescarInscriptosGrid();
+            refreshListaCarrerasInscripcion();
           }, sql);
         }
 
@@ -144,20 +151,23 @@
         function terminarCarrera(){
           // MARCAR CARRERA TERMINADA (AVISAR QUE QUEDAN CORREDORES SIN FINALIZAR
           //Y SE TOMARAN EN CUENTA COMO DESCALIFICADOS).
+          document.getElementById("botonEmpezar").innerHTML = "Empezar";
+          document.getElementById("botonConfirma").style.visibility = 'hidden';
 
-          if (confirm("¿Desea Terminar la carrera?")){
-            sql='UPDATE carreras set terminada=1 where id ='+idCarreraCorrer;
-            sqlQuery(function (err, result){
-              // console.log(sql);
-              //document.getElementById("marcarField").disabled = true;
-              //limpia listas y tablas
-              selectizeCarrerasCorrer.removeOption(idCarreraCorrer);
-              idCarreraCorrer =0;
-              refreshCarreras();
-              gridOptionsCarrerasCorredores.api.setRowData();
+          sql='UPDATE carreras set terminada=1 where id ='+idCarreraCorrer;
+          sqlQuery(function (err, result){
+            // console.log(sql);
+            document.getElementById("marcarField").disabled = true;
+            document.getElementById("botonTerminar").disabled = true;
+            document.getElementById("grupo").disabled = true;
+            //limpia listas y tablas
+            selectizeCarrerasCorrer.removeOption(idCarreraCorrer);
+            idCarreraCorrer =0;
+            refreshCarreras();
+            gridOptionsCarrerasCorredores.api.setRowData();
 
-            }, sql);
-          }
+          }, sql);
+
         }
         //FIN TERMINAR CARRERA
 
@@ -167,7 +177,8 @@
             numeroCorredor = document.getElementById("marcarField").value;
 
             //SI EL GRUPO EMPEZO
-            sql = 'SELECT empezada, grupo FROM `carrera_corredores` cc JOIN carreras_grupos cg ON cc.grupo = cg.id_grupo where numero = '+numeroCorredor;
+            sql =  "SELECT  empezada, grupo FROM `carrera_corredores` cc JOIN carreras_grupos cg ON cc.grupo = cg.id_grupo where numero = "+numeroCorredor+" AND cg.id_carrera = "+idCarreraCorrer;
+            // sql = 'SELECT empezada, grupo FROM `carrera_corredores` cc JOIN carreras_grupos cg ON cc.grupo = cg.id_grupo where numero = '+numeroCorredor;
             sqlQuery(function (err, result){
               if (result.length > 0){
                 if (result[0].empezada==1){
@@ -270,11 +281,15 @@
           sqlQuery(function (err, result){
             //si esta empezada
             if (result[0].empezada==1){
-              //document.getElementById("marcarField").disabled = false;
+              document.getElementById("marcarField").disabled = false;
+              document.getElementById("botonTerminar").disabled = false;
+              document.getElementById("grupo").disabled = false;
               document.getElementById("botonEmpezar").innerHTML = "Terminar";
             }
             else{
-            //  document.getElementById("marcarField").disabled = true;
+              document.getElementById("marcarField").disabled = true;
+              document.getElementById("grupo").disabled = true;
+              document.getElementById("botonTerminar").disabled = true;
               document.getElementById("botonEmpezar").innerHTML ="Empezar";
             }
           }, sqlEmpezadoTerminado);
@@ -288,7 +303,7 @@
             valueField: 'id',
             labelField: 'nombre',
             searchField: 'nombre',
-            onChange:function(value){
+            onChange :function(value){
               //console.log("funcionvalue"+value);
               idCarreraCorrer = value;
               //se refrescan los datos de la tabla cuando cambia la seleccion en la lista

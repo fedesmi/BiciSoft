@@ -1,0 +1,86 @@
+<template class="task-template">
+  <section id="nueva-categoria-section" class="section js-section u-category-native-ui">
+    <header class="communication">
+      <div class="section-wrapper">
+        <h1>
+          <img class="section-icon" src="assets/img/programming.png">
+          Nueva Categoria
+        </h1>
+        <h3>Asegurese que todos los datos son correctos antes de guardar.</h3>
+      </div>
+    </header>
+
+    <table columns="2">
+      <tr class="trinput">
+        <td>Descripcion</td>
+        <td class="tdinput"><input id="nombreCat" style="text-transform: uppercase;" type="text" class="input" name="background" ></td>
+      </tr>
+      <tr class="trinput">
+        <td>Genero</td>
+        <td class="tdinput"><select id="select-genero" style="float: right; width: 320px;" placeholder="Elegir ..."></select></td>
+      </tr>
+    </table>
+
+
+
+    <div style="text-align: center; margin-top:30px;">
+      <button class="boton" onclick="limpiarCategorias()" id="limpiarBtnCat">Limpiar</button>
+      <button class="boton"  onclick="guardarCategoria()" id="guardarbtnCat">Guardar</button>
+    </div>
+  </div>
+
+
+  <br/>
+  <div id="infoncat" style="visibility: hidden;"></div>
+
+
+  <script type="text/javascript">
+
+    function limpiarCategorias(){
+          document.getElementById('nombreCat').value="";
+    }
+
+    function showinfo_ncat(text) {
+          document.getElementById('infoncat').innerHTML = text;
+          document.getElementById('infoncat').style.visibility = 'visible';
+          setTimeout("document.getElementById('infoncat').style.visibility = 'hidden'", 10000);
+    }
+
+    var generoVar;
+
+    var selectGenero = $('#select-genero').selectize({
+      maxItems: 1,
+      valueField: 'sexo',
+      labelField: 'sexo',
+      onChange:function(value){
+        generoVar = value;
+          },
+      options: [
+        {sexo: 'MASCULINO'},
+        {sexo: 'FEMENINO'}
+      ],
+    });
+
+    var selectizeGenero = selectGenero[0].selectize;
+
+
+
+
+
+    function guardarCategoria(){
+      var descripcionCategoria = document.getElementById("nombreCat").value;
+      var sql = 'INSERT INTO categorias(descripcion, sexo) VALUES(UPPER("'+descripcionCategoria+'"),"'+generoVar+'")';
+      sqlQuery(function (err, result){
+        refrescarCategoriasCorredor();
+        //limpiar inputs
+        limpiarCategorias();
+        showinfo_ncat("NUEVA CATEGORIA: "+descripcionCategoria.toUpperCase() +" " +generoVar+ " DADO DE ALTA CORRECTAMENTE!");
+
+      }, sql);
+    }
+
+
+
+  </script>
+</section>
+</template>

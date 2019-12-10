@@ -19,9 +19,11 @@
         </td>
       </tr>
     </table>
-
-    <button class="boton" onclick="onBtPrint()"  id="botonImprimir"  >Generar PDF</button>
-    INSCRIPTOS
+    Reportes:
+    <button class="boton" onclick="onBtPrintPre()"  id="botonImprimir"  >PREELIMINAR</button>
+    <button class="boton" onclick="onBtPrint()"  id="botonImprimirPre"  >GENERAL</button>
+    <button class="boton" onclick="onBtPrintCat()"  id="botonImprimirPreCat"  >CATEGORIAS</button>
+    <br/>INSCRIPTOS
     <div id="gridCorredoresCarreraV" disabled style="height: 350px;width:650px;" class="ag-theme-balham my-grid"></div>
 
 
@@ -34,6 +36,7 @@
       var nombreCarrera;
       var selectizeCarreras_v;
       var carreraterminada_v;
+      var verCarreraQty;
 
 
       var selectCarreras_v = $('#select-carreras').selectize({
@@ -44,9 +47,10 @@
         onChange:function(value){
           idCarrera_v = value;
           nombreCarrera = this.getItem(value)[0].innerHTML;
-          if(carreraterminada_v==1) {
+          //if(carreraterminada_v==1) {
             refrescarTablaVerCarrera();
-          }
+
+          //}
 
         },
         create: false
@@ -57,9 +61,12 @@
 
       function refreshListaCarrerasVer(){
         getCarreras_v(function (err, result){
+          if(result.length>0){
           selectizeCarreras_v.addOption(result);
           selectizeCarreras_v.refreshOptions();
-          carreraterminada_v = result[0].terminada;
+         carreraterminada_v = result[0].terminada;
+       }
+
         });
       }
 
@@ -127,6 +134,7 @@
         var queryCorredores = 'SELECT * FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v;
         sqlQuery(function (err, result){
           gridOptionsCarrerasV.api.setRowData(result);
+          document.getElementById("terminado").innerHTML = gridOptionsCarrerasV.api.getDisplayedRowCount()+" INSCRIPTOS";
         }, queryCorredores);
       }
 
@@ -154,18 +162,7 @@
                 {title: "Tiempo", dataKey: "tiempo"},
                 //{title: "Vueltas", dataKey: "vueltas"}
             ];
-          var queryCorredoresCatego = 'SELECT posicion, global, nombre, apellido, numero, categoria, tiempo, vueltas FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v+' ORDER BY id_categoria, posicion';
-          sqlQuery(function (err, result2){
-            var columns2 = [
-                  {title: "Categoria", dataKey: "categoria"},
-                  {title: "Posición", dataKey: "posicion"},
-                  {title: "General", dataKey: "global"},
-                  {title: "Pechera", dataKey: "numero"},
-                  {title: "Nombre", dataKey: "nombre"},
-                  {title: "Apellido", dataKey: "apellido"},
-                  {title: "Tiempo", dataKey: "tiempo"},
-                  //{title: "Vueltas", dataKey: "vueltas"}
-              ];
+
             margins = {
                 top: 80,
                 bottom: 60,
@@ -178,28 +175,101 @@
                  //pdf.setFontStyle('normal');
                  pdf.text(35, 45, nombreCarrera+" - Posiciones Generales");
              };
-             var header2 = function (data) {
-                  //pdf.setFontSize(14);
-                  //pdf.setTextColor(40);
-                  //pdf.setFontStyle('normal');
-                  pdf.text(35, 45, nombreCarrera+" - Posiciones por Categoría");
-              };
+
             //  pdf.setFontSize(13);
               //pdf.autoTable(columns,result,{ margin:{ top: 90  }, didDrawPage : header});
               pdf.text(35, 25, 'Biciposta');
               pdf.text(700, 25, 'Bicisoft-FSM');
               pdf.autoTable(columns,result,{ margin:{ top: 60  }, didDrawPage : header, headStyles: {valign: 'middle'}, bodyStyles: {minCellHeight: 14, fontSize: 13, valign: 'middle'} });
-              //pdf.text("POSICIONES GENERALES", data.settings.margin.left, 50);
-              pdf.addPage();
-              pdf.autoTable(columns2,result2,{ margin:{ top: 60 }, didDrawPage : header2, headStyles: {valign: 'middle'},  bodyStyles: {minCellHeight: 14, fontSize: 13, valign: 'middle'}});
-              pdf.save('BiciSoftFSM_'+nombreCarrera+'.pdf');
-          }, queryCorredoresCatego);
+              pdf.save('RESULTADOS_GENERAL_'+nombreCarrera+'.pdf');
+
 
 
 
         }, queryCorredores);
 
   }
+
+  function onBtPrintPre() {
+    window.jsPDF = require('jspdf');
+    window.autoTable = require('jspdf-autotable');
+
+
+    var pdf = new jsPDF('l', 'pt', 'a4');
+
+    // source can be HTML-formatted string, or a reference
+    // to an actual DOM element from which the text will be scraped.
+    var queryCorredores = 'SELECT documento, numero, nombre, apellido, categoria, grupo FROM `carrera_corredor_view` WHERE id_carrera='+idCarrera_v+' ORDER by categoria, apellido ';
+
+    sqlQuery(function (err, result){
+      var columns = [
+            {title: "Documento", dataKey: "documento"},
+            {title: "Nombre", dataKey: "nombre"},
+            {title: "Apellido", dataKey: "apellido"},
+            {title: "Categoria", dataKey: "categoria"},
+            {title: "Grupo", dataKey: "grupo"},
+            {title: "Numero", dataKey: "numero"}
+            //{title: "Vueltas", dataKey: "vueltas"}
+        ];
+
+        margins = {
+            top: 80,
+            bottom: 60,
+            left: 40,
+            width: 522
+        };
+        var header = function (data) {
+             pdf.text(35, 45, nombreCarrera+" - Informe Preeliminar");
+         };
+          pdf.text(35, 25, 'Biciposta');
+          pdf.text(700, 25, 'Bicisoft-FSM');
+          pdf.autoTable(columns,result,{ margin:{ top: 60  }, didDrawPage : header, headStyles: {valign: 'middle'}, bodyStyles: {minCellHeight: 14, fontSize: 13, valign: 'middle'} });
+          pdf.save('PREELIMINAR_'+nombreCarrera+'.pdf');
+
+    }, queryCorredores);
+
+}
+
+function onBtPrintCat() {
+  window.jsPDF = require('jspdf');
+  window.autoTable = require('jspdf-autotable');
+
+
+  var pdf = new jsPDF('l', 'pt', 'a4');
+
+    var queryCorredoresCatego = 'SELECT posicion, global, nombre, apellido, numero, categoria, tiempo, vueltas FROM carrera_corredor_view WHERE id_carrera='+idCarrera_v+' ORDER BY id_categoria, posicion';
+    sqlQuery(function (err, result2){
+      var columns2 = [
+            {title: "Categoria", dataKey: "categoria"},
+            {title: "Posición", dataKey: "posicion"},
+            {title: "General", dataKey: "global"},
+            {title: "Pechera", dataKey: "numero"},
+            {title: "Nombre", dataKey: "nombre"},
+            {title: "Apellido", dataKey: "apellido"},
+            {title: "Tiempo", dataKey: "tiempo"}
+            //{title: "Vueltas", dataKey: "vueltas"}
+        ];
+      margins = {
+          top: 80,
+          bottom: 60,
+          left: 40,
+          width: 522
+      };
+
+       var header2 = function (data) {
+            //pdf.setFontSize(14);
+            //pdf.setTextColor(40);
+            //pdf.setFontStyle('normal');
+            pdf.text(35, 45, nombreCarrera+" - Posiciones por Categoría");
+        };
+
+        pdf.autoTable(columns2,result2,{ margin:{ top: 60 }, didDrawPage : header2, headStyles: {valign: 'middle'},  bodyStyles: {minCellHeight: 14, fontSize: 13, valign: 'middle'}});
+        pdf.save('RESULTADOS_CATEGORIA_'+nombreCarrera+'.pdf');
+    }, queryCorredoresCatego);
+
+
+}
+
 
 
 

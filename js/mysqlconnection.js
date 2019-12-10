@@ -1,7 +1,7 @@
 
 //FUNCION DE CONSULTAS A MYSQL
 function sqlQuery(callback, queryString){
-// console.log(queryString);
+ console.log(queryString);
   var mysql = require('mysql');
   var connection = mysql.createConnection({
     host     : 'localhost',

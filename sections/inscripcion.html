@@ -32,14 +32,14 @@
           <div class="test-header">
             CORREDORES
           </div>
-          <div id="inscripcionCorredoresGrid"  style="height:330px; width:320px;" class="ag-theme-balham"></div>
+          <div id="inscripcionCorredoresGrid"  style="height:350px; width:450px;" class="ag-theme-balham"></div>
         </td>
         <td>
           <div class="test-header">
             INSCRIPTOS
             <span id="selectedRows"></span>
           </div>
-          <div id="inscriptosGrid" disabled style="height:330px; width:360px;" class="ag-theme-balham"></div>
+          <div id="inscriptosGrid" disabled style="height:350px; width:450px;" class="ag-theme-balham"></div>
         </td>
       </tr>
     </table>
@@ -62,6 +62,8 @@
       var quitarSeleccionado;
       var numeroCorredor_i;
       var numeroGrupo_i;
+      var nombreSeleccionado;
+      var apellidoSeleccionado;
 
 
       function inscribirCarrera_i(){
@@ -76,7 +78,9 @@
             if (result[0].cuenta==0){
               var sqlInscribir = "INSERT INTO carrera_corredores(id_carrera, id_corredor, id_categoria, numero, grupo) VALUES("+idCarrera_i+", "+agregarSeleccionado+", (SELECT categoria FROM corredores WHERE documento = "+agregarSeleccionado+"), "+numeroCorredor_i+", "+numeroGrupo_i+" )";
               sqlQuery(function (err, result){
-                refrescarInscriptosGrid()
+                refrescarInscriptosGrid();
+                refrescarTablaCarrera();
+                showinfo_i("CORREDOR: "+nombreSeleccionado+"  "+apellidoSeleccionado+" PECHERA: "+numeroCorredor_i+" INSCRIPTO CORRECTAMENTE EN EL GRUPO"+numeroGrupo_i);
               }, sqlInscribir );
             }
             else{
@@ -118,7 +122,7 @@
         maxItems: 1,
         valueField: 'id',
         labelField: 'nombre',
-        searchField: 'terminada',
+        searchField: 'nombre',
         onChange:function(value){
                   idCarrera_i = value;
                   //setup del boton inscripcion
@@ -143,26 +147,37 @@
       var selectizeCarreras_i = selectCarreras_i[0].selectize;
 
 
+
+
       function refreshListaCarrerasInscripcion(){
-        getCarreras_i(function (err, result){
+
+        query =  'SELECT * FROM carreras_view WHERE terminada = 0 AND empezada = 0';
+        sqlQuery(function (err, result){
+
+            console.log('pase por refreshListaCarrerasInscripcion');
+            console.log(result);
+          idCarrera_i=0;
+          refrescarInscriptosGrid();
           selectizeCarreras_i.addOption(result);
           selectizeCarreras_i.refreshOptions();
-        });
+        }, query);
       }
 
       refreshListaCarrerasInscripcion();
 
-      function getCarreras_i(callback){
-        query =  'SELECT * FROM carreras_view WHERE terminada = 0';
+    /*  function getCarreras_i(callback){
+        query =  'SELECT * FROM carreras_view WHERE terminada = 0 AND empezada = 0';
         sqlQuery(callback, query);
-      }
+      }*/
       //FIN LISTA DESPLEGABLE Carreras
 
       //EMPIEZA configuracion TABLA CORREDORES
       var columnDefsCorredores = [
       {headerName: "documento", field: "documento", sortable: true, filter: true},
       {headerName: "apellido", field: "apellido", sortable: true, filter: true},
-      {headerName: "nombre", field: "nombre"}
+      {headerName: "nombre", field: "nombre"},
+      {headerName: "categoria", field: "categoria", sortable: true, filter: true}
+
       ];
 
       // let the grid know which columns and what data to use
@@ -208,6 +223,8 @@
           }
           selectedRowsString += selectedRow.documento;
           agregarSeleccionado = selectedRow.documento;
+          nombreSeleccionado = selectedRow.nombre;
+          apellidoSeleccionado = selectedRow.apellido;
         });
         //  document.querySelector('#selectedRows').innerHTML = selectedRowsString;
 
@@ -243,8 +260,8 @@
       //EMPIEZA configuracion TABLA INSCRIPTOS
       // specify the columns
       var columnDefsCarreras_i = [
-      {headerName: "Grupo", field: "grupo", width:75},
-      {headerName: "Pechera", field: "numero", width:75},
+      {headerName: "Grupo", field: "grupo", sortable: true, width:75},
+      {headerName: "Pechera", field: "numero", sortable: true, width:75},
       {headerName: "apellido", field: "apellido", sortable: true},
       {headerName: "nombre", field: "nombre"},
       {headerName: "documento", field: "documento"}

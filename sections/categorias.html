@@ -14,39 +14,94 @@
 
     <div id="categoriasGrid" disabled style="height: 350px;width:650px;" class="ag-theme-balham"></div>
 
-
+    <br/><div id="infovercatego" style="visibility: hidden;"></div>
     <script type="text/javascript" charset="utf-8">
 
+      function showinfo_vercategorias(text) {
+            document.getElementById('infovercatego').innerHTML = text;
+            document.getElementById('infovercatego').style.visibility = 'visible';
+            setTimeout("document.getElementById('infovercatego').style.visibility = 'hidden'", 10000);
+      }
+
       // specify the columns
+      var generoColumn =  {"MASCULINO": "MASCULINO", "FEMENINO": "FEMENINO"};
       var columnDefsCatego = [
 
-      {headerName: "descripcion", field: "descripcion"},
-      {headerName: "observacion", field: "observacion", sortable: true, filter: true}
-      ];
+      {headerName: "Descripcion", field: "descripcion", editable: true,
+      onCellValueChanged: function (value) {
+      // console.log(value.newValue);
+       var sqlupdate ="UPDATE categorias set descripcion= UPPER('"+value.newValue+"') WHERE descripcion='"+value.oldValue+"' ";
+       sqlQuery(function (err, result){
+         showinfo_vercategorias('NUEVA DESCRIPCION: '+value.newValue);
+        }, sqlupdate);
+      }},
+      {headerName: "Genero", field: "sexo", editable: true,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: {
+        values: extractValues(generoColumn)
+      },
+      valueFormatter: function (params) {
+        return lookupValue(generoColumn, params.value);
+      },
+      valueParser: function (params) {
+        return lookupKey(generoColumn, params.newValue);
+      },
+      onCellValueChanged: function (value) {
+        var sqlupdate ="UPDATE categorias set sexo= '"+value.newValue+"' WHERE descripcion='"+value.data.descripcion+"' ";
+        sqlQuery(function (err, result){
+
+            showinfo_vercategorias("DATOS DE"+value.data.descripcion+" GUARDADOS. NUEVO GENERO: "+value.newValue);
+        }, sqlupdate);
+      }
+
+    }
+    ];
+
+    function extractValues(mappings) {
+      return Object.keys(mappings);
+    }
+
+    function lookupValue(mappings, key) {
+      return mappings[key];
+    }
+
+    function lookupKey(mappings, name) {
+      for (var key in mappings) {
+        if (mappings.hasOwnProperty(key)) {
+          if (name === mappings[key]) {
+            return key;
+          }
+        }
+      }
+    }
+
+
+    // let the grid know which columns and what data to use
+    var gridOptionsCategorias = {
+      defaultColDef: {
+        width: 150,
+        resizable: true
+      },
+      columnDefs: columnDefsCatego
+      //rowData: rowData
+
+    };
+
+    // lookup the container we want the Grid to use
+    var eGridCatego = document.querySelector('#categoriasGrid');
+    var sql = 'SELECT * FROM categorias';
+    sqlQuery(function (err, result){
+      gridOptionsCategorias.api.setRowData(result);
+    }, sql);
+    new agGrid.Grid(eGridCatego, gridOptionsCategorias);
 
 
 
-      // let the grid know which columns and what data to use
-      var gridOptionsCategorias = {
-        defaultColDef: {
-          width: 150,
-          resizable: true
-        },
-        columnDefs: columnDefsCatego
-        //rowData: rowData
-
-      };
-
-      // lookup the container we want the Grid to use
-      var eGridCatego = document.querySelector('#categoriasGrid');
-      var sql = 'SELECT * FROM categorias';
-      sqlQuery(function (err, result){
-        gridOptionsCategorias.api.setRowData(result);
-      }, sql);
-      new agGrid.Grid(eGridCatego, gridOptionsCategorias);
 
 
 
-    </script>
-  </section>
+
+
+  </script>
+</section>
 </template>

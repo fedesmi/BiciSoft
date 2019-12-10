@@ -5,8 +5,8 @@ const electron = require('electron')
 function createWindow () {
   // Crea la ventana del navegador.
   let win = new BrowserWindow({
-    width: 930,
-    height: 670,
+    width: 1100,
+    height: 700,
     webPreferences: {
       nodeIntegration: true,
       devTools: true
