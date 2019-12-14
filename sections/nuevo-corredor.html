@@ -64,20 +64,20 @@
 
     var selectize_tcategorias = $select[0].selectize;
 
-    var sql = 'SELECT * FROM categorias';
+    /*var sql = 'SELECT * FROM categorias';
     sqlQuery(function (err, result){
       selectize_tcategorias.addOption(result);
       selectize_tcategorias.refreshOptions();
-    }, sql);
+    }, sql);*/
 
     function refrescarCategoriasCorredor(){
-      var sqlprueba = 'SELECT * FROM categorias';
-      sqlQuery(function (err, result){
-        selectize_tcategorias.addOption(result);
+      var sql = 'SELECT * FROM categorias';
+      sqlQuery(function (err, resultado){
+        selectize_tcategorias.addOption(resultado);
         selectize_tcategorias.refreshOptions();
       }, sql);
     }
-
+    refrescarCategoriasCorredor();
 
 
     function guardarCorredor(){

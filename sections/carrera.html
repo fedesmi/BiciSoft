@@ -177,15 +177,24 @@
             numeroCorredor = document.getElementById("marcarField").value;
 
             //SI EL GRUPO EMPEZO
-            sql =  "SELECT  empezada, grupo FROM `carrera_corredores` cc JOIN carreras_grupos cg ON cc.grupo = cg.id_grupo where numero = "+numeroCorredor+" AND cg.id_carrera = "+idCarreraCorrer;
+            sql =  "SELECT empezada, grupo FROM carreras_grupos as cg JOIN carrera_corredores as cc ON cc.id_carrera = cg.id_carrera WHERE cc.numero = "+numeroCorredor+" AND cg.id_carrera = "+idCarreraCorrer+" AND cc.grupo = cg.id_grupo";
             // sql = 'SELECT empezada, grupo FROM `carrera_corredores` cc JOIN carreras_grupos cg ON cc.grupo = cg.id_grupo where numero = '+numeroCorredor;
             sqlQuery(function (err, result){
               if (result.length > 0){
                 if (result[0].empezada==1){
-                  var sqltipoCarrera = "SELECT count(*) as cuenta FROM carreras as ca JOIN tipo_carreras as tc ON ca.id_tipo = tc.id JOIN carrera_corredores AS cc ON ca.id = cc.id_carrera WHERE ca.id="+idCarreraCorrer+" AND cc.numero = "+numeroCorredor+" AND vueltas<"+max_vueltas;
-                  // console.log(sqltipoCarrera);
+                //  var sqltipoCarrera = "SELECT count(*) as cuenta FROM carreras as ca JOIN tipo_carreras as tc ON ca.id_tipo = tc.id JOIN carrera_corredores AS cc ON ca.id = cc.id_carrera WHERE ca.id="+idCarreraCorrer+" AND cc.numero = "+numeroCorredor+" AND vueltas<"+max_vueltas;
+                  var sqltipoCarrera ="SELECT CASE "+
+                                " WHEN ((ca.vueltas_carrera>0) AND (cc.vueltas < ca.vueltas_carrera)) OR (ca.vueltas_carrera=0) THEN 0 "+
+                                "ELSE 1 "+
+                                "END AS cuenta "+
+                                "FROM carreras as ca "+
+                                "JOIN tipo_carreras as tc ON ca.id_tipo = tc.id "+
+                                "JOIN carrera_corredores AS cc ON ca.id = cc.id_carrera "+
+                                "WHERE ca.id="+idCarreraCorrer+" AND cc.numero = "+numeroCorredor;
+
+                   console.log(sqltipoCarrera);
                   sqlQuery(function (err, result){
-                    if (result[0].cuenta>0) {
+                    if (result[0].cuenta==0) {
                       //MARCAR CORREDOR
                       sqlMarca='INSERT INTO carrera_marcas(id_carrera, numero_corredor, marca) SELECT '+idCarreraCorrer+', cc.numero, now() FROM carrera_corredores as cc WHERE cc.id_carrera='+idCarreraCorrer+'  AND cc.numero = '+numeroCorredor;
                       // console.log(sqlMarca);
@@ -203,7 +212,7 @@
                       }, sqlMarca);
                     }
                     else{
-                      ultimasMarcas.push('#100 ya finalizó!');
+                      ultimasMarcas.push('#'+numeroCorredor+' ya finalizó!');
                       ultimasMarcas.shift();
                       actualizarListaUlitmasMarcas();
                       console.log("corredor finalizo carrera");

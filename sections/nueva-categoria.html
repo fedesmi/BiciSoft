@@ -72,6 +72,8 @@
       var sql = 'INSERT INTO categorias(descripcion, sexo) VALUES(UPPER("'+descripcionCategoria+'"),"'+generoVar+'")';
       sqlQuery(function (err, result){
         refrescarCategoriasCorredor();
+        refrescarCategoriasCat();
+        //verCorredoresInit();
         //limpiar inputs
         limpiarCategorias();
         showinfo_ncat("NUEVA CATEGORIA: "+descripcionCategoria.toUpperCase() +" " +generoVar+ " DADO DE ALTA CORRECTAMENTE!");

@@ -16,6 +16,10 @@
         <td class="tdinput"><input type="text" style="text-transform: uppercase;" id="inputNombreC" class="input" name="background" ></td>
       </tr>
       <tr class="trinput">
+        <td>Vueltas</td>
+        <td class="tdinput"><input type="text" min="0" oninput="this.value=this.value.replace(/[^0-9]/g,'');" id="inputVueltasC" class="input" ></td>
+      </tr>
+      <tr class="trinput">
         <td>Tipo</td>
         <td class="tdinput"><select id="select-tcarrera" readonly style="float: right; width: 320px;" placeholder="Elegir Tipo..."></select></td>
       </tr>
@@ -67,12 +71,14 @@
 
     function guardarCarrera(){
       var nombreCarrera = document.getElementById("inputNombreC").value;
-      var sql = 'INSERT INTO CARRERAS(nombre, id_tipo) VALUES( UPPER("'+nombreCarrera+'") , '+idTipo+')';
+      var vueltasCarrera = document.getElementById("inputVueltasC").value;
+      var sql = 'INSERT INTO CARRERAS(nombre, vueltas_carrera, id_tipo) VALUES( UPPER("'+nombreCarrera+'") ,'+vueltasCarrera+' , '+idTipo+')';
       sqlQuery(function (err, result){
         selectize_tcarreas.addOption(result);
         selectize_tcarreas.refreshOptions();
         //limpiar inputs
          document.getElementById("inputNombreC").value ="";
+         document.getElementById("inputVueltasC").value ="";
          refreshCarreras();
          //alert('Carrera '+nombreCarrera+' guardada correctamente');
          showinfo_nuc("CARRERA "+nombreCarrera+" GUARDADA CORRECTAMENTE");

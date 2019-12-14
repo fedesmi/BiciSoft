@@ -35,6 +35,8 @@
       var gridOptions;
       var  eGridDiv;
 
+
+
       sqlQuery(function (err, result){
 
         categoriasVar =  JSON.parse(result[0].arreglo);
@@ -131,6 +133,7 @@
 
       new agGrid.Grid(eGridDiv, gridOptions);
     }, sql);
+
 
     function inizializarVerCorredores(){
 

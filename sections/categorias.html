@@ -87,12 +87,19 @@
 
     };
 
+
+
     // lookup the container we want the Grid to use
     var eGridCatego = document.querySelector('#categoriasGrid');
+    refrescarCategoriasCat();
+
+    function refrescarCategoriasCat(){
     var sql = 'SELECT * FROM categorias';
     sqlQuery(function (err, result){
       gridOptionsCategorias.api.setRowData(result);
     }, sql);
+    }
+
     new agGrid.Grid(eGridCatego, gridOptionsCategorias);
 
 
